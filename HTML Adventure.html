@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML Adventure</title>
+<style>
+:root{
+  --bg:#1d1650; --ink:#1c1650; --muted:#6b6896; --soft:#f4f2ff; --line:#d9d4ff;
+  --yellow:#ffcf3f; --yellow-d:#d9a400; --mint:#2fd39a; --mint-d:#1a9f73;
+  --coral:#ff5d73; --coral-d:#c93a50; --sky:#3fb6ff; --violet:#7c5cff; --violet-d:#5a3fd6;
+  --code:#15122e;
+  --mono:Consolas,"SF Mono",Menlo,"DejaVu Sans Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;font-size:18px;line-height:1.5;color:var(--ink);
+  background:#1d1650;background-image:radial-gradient(circle at 12% 8%,#3b2bb5 0,transparent 38%),radial-gradient(circle at 92% 92%,#5b2aa0 0,transparent 34%);background-attachment:fixed}
+:focus-visible{outline:4px solid var(--sky);outline-offset:2px}
+h1,h2,h3{line-height:1.2;margin:0 0 .5em}
+p{margin:0 0 .8em}
+code{font-family:var(--mono);background:#ece8ff;color:#3a2aa8;padding:1px 7px;border-radius:7px;font-size:.92em}
+button{font-family:inherit}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;background:rgba(18,13,56,.95);border-bottom:3px solid #0f0b33}
+.brand{display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;font-size:20px;white-space:nowrap}
+.brand-mark{font-family:var(--mono);background:var(--yellow);color:var(--ink);border-radius:9px;padding:0 8px}
+.progress{flex:1;min-width:200px;display:flex;gap:5px}
+.seg{height:16px;background:rgba(255,255,255,.16);border-radius:8px;overflow:hidden;position:relative}
+.seg i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;transition:width .6s ease}
+.seg.now{outline:2px solid #fff;outline-offset:1px}
+.top-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.xp{background:#fff;color:var(--ink);font-weight:800;border-radius:999px;padding:3px 14px;min-width:78px;text-align:center}
+.who{color:#d8d3ff;font-weight:700;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{border:0;background:rgba(255,255,255,.14);color:#fff;font-size:20px;width:44px;height:44px;border-radius:12px;cursor:pointer}
+.icon-btn:hover{background:rgba(255,255,255,.26)}
+
+main{max-width:1060px;margin:0 auto;padding:24px 16px 70px}
+
+/* cards */
+.card{background:#fff;border-radius:24px;padding:26px 28px;margin-bottom:22px;box-shadow:0 7px 0 #0f0b33}
+.card.enter,.enter{animation:enter .35s ease both}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end;margin-top:14px}
+.row.between{justify-content:space-between}
+.chip{display:inline-block;font-weight:800;font-size:15px;padding:3px 12px;border-radius:999px;background:var(--soft);color:var(--violet-d)}
+.chip.hot{background:#ffe9c2;color:#9b5c00}
+.chip.sec{color:#fff}
+.q{font-size:27px;margin:12px 0 14px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:16px;padding:13px 26px;font-size:19px;font-weight:800;cursor:pointer;color:var(--ink);background:var(--yellow);box-shadow:0 5px 0 var(--yellow-d);transition:transform .08s,box-shadow .08s;min-height:50px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--yellow-d)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--yellow-d)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.mint{background:var(--mint);box-shadow:0 5px 0 var(--mint-d)}
+.btn.mint:hover{box-shadow:0 7px 0 var(--mint-d)}
+.btn.danger{background:var(--coral);color:#fff;box-shadow:0 5px 0 var(--coral-d)}
+.btn.ghost{background:var(--soft);box-shadow:0 5px 0 var(--line);color:var(--violet-d)}
+.btn.small{font-size:16px;padding:8px 16px;min-height:42px;border-radius:13px;box-shadow:0 4px 0 var(--line)}
+.btn.big{font-size:24px;padding:18px 40px;border-radius:20px}
+
+/* welcome */
+.hero{text-align:center;padding:34px 24px 30px}
+.title{font-size:clamp(40px,8vw,74px);font-weight:900;margin:6px 0 0;color:var(--ink);letter-spacing:-1px}
+.title .br{color:var(--violet);font-family:var(--mono)}
+.title .sl{color:var(--coral);font-family:var(--mono)}
+.tagline{font-size:26px;font-weight:800;color:var(--violet-d);margin:0 0 18px}
+.name-input{font:inherit;font-size:24px;font-weight:700;text-align:center;padding:14px 18px;border-radius:16px;border:4px solid var(--line);width:min(420px,100%);color:var(--ink);background:var(--soft)}
+.name-input:focus{border-color:var(--violet);outline:none}
+.lead{max-width:640px;margin:0 auto 20px;font-size:20px}
+.mascot{display:flex;gap:14px;align-items:flex-start;text-align:left}
+.face{flex:none;font-size:42px;width:66px;height:66px;display:grid;place-items:center;background:var(--yellow);border-radius:20px;box-shadow:0 4px 0 var(--yellow-d)}
+.bubble{background:var(--soft);border-radius:18px;padding:12px 18px;flex:1}
+.bubble p:last-child{margin:0}
+
+/* choices */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.opts.one{grid-template-columns:1fr}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 18px;border:3px solid var(--line);background:var(--soft);border-radius:16px;font-size:19px;font-weight:700;color:var(--ink);cursor:pointer;transition:transform .1s,border-color .1s,background .1s;min-height:64px}
+.opt:hover:not(:disabled){border-color:var(--violet);transform:translateY(-2px)}
+.opt:disabled{cursor:default}
+.opt .key{flex:none;width:34px;height:34px;border-radius:10px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:16px;color:var(--violet-d)}
+.opt.right{background:#d6f7e8;border-color:var(--mint)}
+.opt.right .key{background:var(--mint);color:#fff;border-color:var(--mint)}
+.opt.wrong{background:#ffe3e7;border-color:var(--coral);animation:shake .4s}
+.opt.wrong .key{background:var(--coral);color:#fff;border-color:var(--coral)}
+.opt-code{display:inline-block;background:var(--code);color:#e8e6ff;font-family:var(--mono);font-size:19px;padding:5px 12px;border-radius:10px;font-weight:600;white-space:pre}
+.opt-html{background:#fff;color:#111;font-family:Georgia,"Times New Roman",serif;font-weight:400;padding:4px 14px;border-radius:8px;border:2px solid #e3e0ff;width:100%}
+.opt-html ul,.opt-html ol{margin:6px 0}
+
+.fb{margin-top:20px;padding:16px 20px;border-radius:18px;animation:enter .3s ease both}
+.fb.good{background:#e3faf0;border-left:10px solid var(--mint)}
+.fb.bad{background:#fff0f2;border-left:10px solid var(--coral)}
+.fb-head{font-size:26px;font-weight:900;margin-bottom:4px}
+.fb.good .fb-head{color:#12805c}
+.fb.bad .fb-head{color:#b8283d}
+.pts{font-weight:800;color:var(--violet-d)}
+
+/* code */
+.code-block{background:var(--code);color:#e8e6ff;border-radius:16px;padding:16px 20px;font-family:var(--mono);font-size:20px;line-height:1.6;white-space:pre;overflow:auto;margin:12px 0;border:3px solid #0b0922}
+.t-br{color:#9a96d6}.t-tag{color:#ff7b9c;font-weight:700}.t-attr{color:#ffd36b}.t-val{color:#7ee2a8}.t-com{color:#7d79ad;font-style:italic}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.mission{margin:8px 0 0;padding-left:0;list-style:none;counter-reset:m}
+.mission li{counter-increment:m;position:relative;padding:6px 0 6px 40px}
+.mission li::before{content:counter(m);position:absolute;left:0;top:6px;width:28px;height:28px;border-radius:50%;background:var(--violet);color:#fff;font-weight:800;display:grid;place-items:center;font-size:15px}
+.editor{position:relative;height:calc(var(--rows,10)*1.6em + 28px);font-size:18px;border-radius:16px;overflow:hidden;background:var(--code);border:3px solid #0b0922}
+.editor pre,.editor textarea{position:absolute;inset:0;margin:0;padding:14px;font:inherit;font-family:var(--mono);line-height:1.6;white-space:pre;tab-size:2;border:0}
+.editor pre{color:#e8e6ff;overflow:hidden;pointer-events:none}
+.editor pre code{background:none;color:inherit;padding:0;font-size:inherit;border-radius:0}
+.editor textarea{background:transparent;color:transparent;caret-color:#fff;resize:none;overflow:auto;outline:none;width:100%;height:100%}
+.editor textarea::selection{background:rgba(124,92,255,.55);color:transparent}
+.editor.locked{opacity:.85}
+.pv{border:3px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.pv-bar{background:var(--soft);padding:6px 14px;font-weight:800;color:var(--violet-d);font-size:15px}
+.pv-frame{width:100%;border:0;display:block;background:#fff}
+.paper{background:#fff;color:#111;font-family:Georgia,"Times New Roman",serif;border:3px dashed #cfc9ff;border-radius:12px;padding:10px 18px;font-size:16px;line-height:normal}
+.paper img{max-width:150px}
+.tip{background:#fff8dc;border:3px dashed var(--yellow);border-radius:16px;padding:10px 16px;margin:12px 0}
+.hint-wrap{margin:12px 0}
+.hint-note{font-size:14px;color:var(--muted);margin-left:10px}
+.hint-text{margin-top:10px;background:#fff8dc;border-left:8px solid var(--yellow);border-radius:12px;padding:10px 16px;animation:enter .3s ease both}
+.crit{display:flex;gap:10px;padding:8px 0;border-bottom:2px dashed #eee;align-items:flex-start}
+.crit .ic{flex:none;width:28px}
+.crit .pp{margin-left:auto;font-weight:800;white-space:nowrap}
+.crit.ok .pp{color:#12805c}.crit.no .pp{color:#b8283d}.crit.part .pp{color:#9b5c00}
+
+/* match question */
+.mrow{display:flex;gap:12px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.mrow .arrow{color:var(--muted)}
+select.sel{font:inherit;font-size:18px;font-weight:700;padding:10px 12px;border-radius:12px;border:3px solid var(--line);background:#fff;color:var(--ink);min-width:230px;max-width:100%}
+select.sel.right{border-color:var(--mint);background:#d6f7e8}
+select.sel.wrong{border-color:var(--coral);background:#ffe3e7;animation:shake .4s}
+
+/* mini-games */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;margin-top:14px}
+.mcol{display:flex;flex-direction:column;gap:12px}
+.mcard{border:3px solid var(--line);background:var(--soft);border-radius:16px;padding:12px 16px;font-size:19px;font-weight:700;cursor:pointer;text-align:left;color:var(--ink);min-height:62px;display:flex;align-items:center;transition:transform .1s}
+.mcard:hover{transform:translateY(-2px);border-color:var(--violet)}
+.mcard.tag{font-family:var(--mono);font-size:22px;justify-content:center;background:var(--code);color:#ff7b9c;border-color:#0b0922}
+.mcard.sel{outline:5px solid var(--yellow);transform:scale(1.03)}
+.mcard.matched{background:#d6f7e8;border-color:var(--mint);color:var(--ink);animation:pop .5s ease;pointer-events:none;opacity:.8}
+.mcard.tag.matched{background:var(--mint);color:var(--ink)}
+.mcard.shake{animation:shake .4s}
+.build-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.line{display:flex;align-items:center;gap:4px;margin:8px 0;font-family:var(--mono);font-size:19px;flex-wrap:wrap}
+.line.fixed{color:#7d79ad;padding:4px 0}
+.slot{min-width:120px;min-height:46px;border:3px dashed #b9b1ff;border-radius:12px;background:var(--soft);padding:4px 12px;font-family:var(--mono);font-size:18px;display:inline-flex;align-items:center;cursor:pointer;color:var(--muted);font-weight:700}
+.slot.filled{border-style:solid;background:var(--code);color:#ff7b9c;border-color:#0b0922}
+.slot.over{background:#fff3c4}
+.slot.ok{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint)}
+.slot.bad{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral);animation:shake .4s}
+.line .txt{color:var(--ink);font-family:Georgia,serif}
+.palette{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.tag-block{font-family:var(--mono);font-size:20px;font-weight:800;background:var(--code);color:#ffd36b;border:3px solid #0b0922;border-radius:12px;padding:8px 16px;cursor:grab;box-shadow:0 4px 0 #0b0922;min-height:46px}
+.tag-block.picked{outline:5px solid var(--yellow);transform:translateY(-3px)}
+.chunk{cursor:pointer;border-radius:6px;padding:2px 1px;border-bottom:3px dotted transparent}
+.chunk:hover{background:rgba(255,255,255,.18);border-bottom-color:#9a96d6}
+.chunk.wrong{background:rgba(255,93,115,.5);animation:shake .4s}
+.chunk.found{background:rgba(47,211,154,.55)}
+.chunk.reveal{background:rgba(255,207,63,.5)}
+.dots{display:flex;gap:6px;margin:8px 0}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--mint)}.dots i.cur{background:var(--yellow)}
+
+/* results */
+.ring{--p:0;width:220px;height:220px;border-radius:50%;background:conic-gradient(var(--mint) calc(var(--p)*1%),#e6e2ff 0);display:grid;place-items:center;margin:0 auto}
+.ring-in{width:170px;height:170px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center;line-height:1.1}
+.big-score{font-size:46px;font-weight:900}
+.badge{display:inline-flex;gap:10px;align-items:center;font-size:30px;font-weight:900;background:var(--yellow);padding:8px 24px;border-radius:999px;box-shadow:0 5px 0 var(--yellow-d);animation:levelup .9s ease both}
+.bars{display:grid;gap:12px;margin-top:10px}
+.bar-row{display:grid;grid-template-columns:190px 1fr 56px;gap:12px;align-items:center}
+.bar-label{font-weight:800}
+.track{height:24px;border-radius:12px;background:#ece8ff;overflow:hidden}
+.fill{height:100%;width:0;border-radius:12px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.bar-val{font-weight:800;text-align:right}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+ul.nice{list-style:none;padding:0;margin:0}
+ul.nice li{padding:6px 0 6px 34px;position:relative}
+ul.nice li::before{content:attr(data-i);position:absolute;left:0}
+table.tbl{width:100%;border-collapse:collapse;font-size:16px}
+table.tbl th,table.tbl td{padding:8px 10px;border-bottom:2px solid #eee;text-align:left}
+table.tbl th{background:var(--soft);color:var(--violet-d)}
+details.code-d{margin:6px 0}
+details.code-d pre{background:var(--code);color:#e8e6ff;padding:12px;border-radius:10px;overflow:auto;font-family:var(--mono);font-size:15px}
+.recommend{background:#f1eeff;border-left:10px solid var(--violet);border-radius:16px;padding:14px 20px;font-size:19px}
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(10,8,40,.72);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:22px;max-width:540px;width:100%;padding:24px 26px;max-height:88vh;overflow:auto;box-shadow:0 7px 0 #0f0b33}
+.modal textarea{width:100%;min-height:200px;font-family:var(--mono);font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;color:var(--ink);font-weight:800;padding:12px 22px;border-radius:999px;box-shadow:0 5px 0 #0f0b33;z-index:60;animation:enter .25s ease both}
+.cf{position:fixed;top:-16px;width:10px;height:15px;z-index:40;pointer-events:none;animation:fall 3.2s linear forwards}
+
+@keyframes enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes levelup{0%{transform:scale(.3) rotate(-8deg);opacity:0}60%{transform:scale(1.15) rotate(3deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes fall{to{transform:translateY(108vh) rotate(720deg)}}
+@keyframes pulse{0%,100%{box-shadow:0 5px 0 var(--line)}50%{box-shadow:0 5px 0 var(--yellow),0 0 0 5px rgba(255,207,63,.5)}}
+.btn.pulse{animation:pulse 1.6s ease infinite}
+
+@media (max-width:880px){
+  .split,.build-grid,.two{grid-template-columns:1fr}
+  .opts,.mgrid{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:130px 1fr 50px}
+  .card{padding:20px 18px}
+  .q{font-size:23px}
+}
+@media (max-width:560px){ body{font-size:17px} .who{display:none} }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important} }
+</style>
+</head>
+<body>
+<header id="topbar" class="topbar" hidden>
+  <div class="brand"><span class="brand-mark">&lt;/&gt;</span><span>HTML Adventure</span></div>
+  <div id="progress" class="progress" role="progressbar" aria-label="Adventure progress"></div>
+  <div class="top-right">
+    <span id="who" class="who"></span>
+    <span id="xp" class="xp" title="Your stars">⭐ 0</span>
+    <button id="btn-sound" class="icon-btn" type="button" aria-label="Turn sound on or off" title="Sound on/off">🔊</button>
+    <button id="btn-new" class="icon-btn" type="button" aria-label="Start a new student" title="Start new student">↺</button>
+  </div>
+</header>
+<main id="main"></main>
+<div id="modal-root"></div>
+<script>
+'use strict';
+
+// =====================================================================
+// UI HELPERS
+// =====================================================================
+const $ = (s, r = document) => r.querySelector(s);
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const k in props) {
+    const v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  kids.flat(Infinity).forEach(c => { if (c == null || c === false) return; e.append(c.nodeType ? c : document.createTextNode(String(c))); });
+  return e;
+}
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// text with `code` pieces -> safe html
+const fmt = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const fmtPts = n => { n = Math.round(n * 10) / 10; return Number.isInteger(n) ? String(n) : n.toFixed(1); };
+const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const wordCount = s => norm(s).split(' ').filter(Boolean).length;
+const CMT = '<!' + '-- Type your HTML here --' + '>';
+
+// syntax colouring for HTML code (input is raw text, output is safe HTML)
+function hl(src) {
+  const s = esc(src);
+  return s.replace(/(&lt;!--[\s\S]*?--&gt;)|(&lt;\/?)([A-Za-z!][\w-]*)((?:(?!&gt;)[\s\S])*?)(\/?&gt;)/g, (m, com, open, name, attrs, end) => {
+    if (com) return '<span class="t-com">' + com + '</span>';
+    const a = attrs.replace(/([\w:-]+)(=)("[^"]*"|'[^']*')/g, '<span class="t-attr">$1</span>$2<span class="t-val">$3</span>');
+    return '<span class="t-br">' + open + '</span><span class="t-tag">' + name + '</span>' + a + '<span class="t-br">' + end + '</span>';
+  });
+}
+const codeBlock = src => h('div', { class: 'code-block', html: hl(src) });
+function clearMain() { const m = $('#main'); m.innerHTML = ''; window.scrollTo(0, 0); return m; }
+
+function toast(msg) {
+  const t = h('div', { class: 'toast', role: 'status' }, msg);
+  document.body.append(t); setTimeout(() => t.remove(), 2600);
+}
+function confirmBox(msg, yes = 'Yes', no = 'Cancel', opts = {}) {
+  return new Promise(res => {
+    const ov = h('div', { class: 'overlay' });
+    const onKey = e => { if (e.key === 'Escape') close(false); };
+    const close = v => { ov.remove(); document.removeEventListener('keydown', onKey); res(v); };
+    const yesB = h('button', { class: 'btn' + (opts.danger ? ' danger' : ''), type: 'button', onclick: () => close(true) }, yes);
+    ov.append(h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' },
+      h('h3', null, opts.title || 'Are you sure?'), h('p', null, msg),
+      h('div', { class: 'row end' }, h('button', { class: 'btn ghost', type: 'button', onclick: () => close(false) }, no), yesB)));
+    $('#modal-root').append(ov); document.addEventListener('keydown', onKey); yesB.focus();
+  });
+}
+function textModal(title, text) {
+  const ov = h('div', { class: 'overlay' });
+  const ta = h('textarea', { readonly: true }); ta.value = text;
+  ov.append(h('div', { class: 'modal' }, h('h3', null, title), h('p', { class: 'small' }, 'Select all the text and copy it:'), ta,
+    h('div', { class: 'row end' }, h('button', { class: 'btn', type: 'button', onclick: () => ov.remove() }, 'Close'))));
+  $('#modal-root').append(ov); ta.focus(); ta.select();
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('✅ Copied!'); return; } catch (e) { /* fall through */ }
+  try {
+    const ta = h('textarea', { style: 'position:fixed;opacity:0' }); ta.value = t; document.body.append(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove();
+    if (ok) { toast('✅ Copied!'); return; }
+  } catch (e) { /* ignore */ }
+  textModal('Copy this text', t);
+}
+function countUp(el, to, ms = 700, fmtFn = v => Math.round(v)) {
+  const from = parseFloat(el.dataset.v || '0') || 0; el.dataset.v = to;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || from === to) { el.textContent = fmtFn(to); return; }
+  const t0 = performance.now();
+  (function step(t) { const k = Math.min(1, (t - t0) / ms); el.textContent = fmtFn(from + (to - from) * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); })(t0);
+}
+function confetti() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#ffcf3f', '#2fd39a', '#ff5d73', '#3fb6ff', '#7c5cff'];
+  for (let i = 0; i < 70; i++) {
+    const c = h('div', { class: 'cf' }); c.style.left = Math.random() * 100 + 'vw'; c.style.background = cols[i % cols.length];
+    c.style.animationDelay = Math.random() * 1.2 + 's'; c.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+    document.body.append(c); setTimeout(() => c.remove(), 5000);
+  }
+}
+
+// ---- sound (Web Audio, no files) ----
+let actx = null;
+function tone(f, t0, d, type = 'sine', v = .13) {
+  if (!state.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + t0;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + .02); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + .05);
+  } catch (e) { /* sound is optional */ }
+}
+const SFX = {
+  ok: () => { tone(523, 0, .12); tone(784, .1, .22); },
+  bad: () => { tone(220, 0, .18, 'sawtooth', .07); tone(165, .12, .24, 'sawtooth', .07); },
+  click: () => tone(660, 0, .06, 'triangle', .07),
+  match: () => { tone(700, 0, .08); tone(990, .07, .16); },
+  win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .12, .28))
+};
+
+// =====================================================================
+// APPLICATION STATE
+// =====================================================================
+const KEY = 'htmlAdventure.v1.state';
+const HISTORY_KEY = 'htmlAdventure.v1.history';
+const HINT_CAP = 0.8;
+function freshState(sound = true) {
+  return { v: 1, phase: 'new', screen: 'welcome', name: '', stepIndex: 0, results: {}, order: [], tiers: {}, orders: {}, drafts: {}, sound, startedAt: null, finishedAt: null, final: null };
+}
+let state = freshState();
+let ui = { hint: false };          // temporary info about the current step
+let shownXP = 0;
+
+// =====================================================================
+// LOCAL STORAGE
+// =====================================================================
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage may be blocked */ } }
+let saveTimer = null;
+function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(KEY); if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s && s.v === 1) { state = Object.assign(freshState(), s); state.screen = 'welcome'; }
+  } catch (e) { /* ignore broken data */ }
+}
+function readHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch (e) { return []; } }
+function pushHistory(f) {
+  const list = readHistory().filter(x => !(x.name === f.name && x.date === f.date));
+  list.unshift({ name: f.name, date: f.date, score: f.score, level: f.level.name, report: f.report });
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 40))); } catch (e) { /* ignore */ }
+}
+
+// =====================================================================
+// SECTIONS AND SKILLS
+// =====================================================================
+const SECTIONS = [
+  { id: 's1', name: 'HTML Knowledge', short: 'Theory', weight: 20, icon: '🧠', color: '#8b5cf6', text: 'Answer 15 quick questions. Pick the answer you think is right!' },
+  { id: 's2', name: 'Read the Code', short: 'Code Reading', weight: 15, icon: '👀', color: '#3fb6ff', text: 'Look at small pieces of HTML. Can you imagine what the browser will show?' },
+  { id: 's3', name: 'Build HTML', short: 'Practical Coding', weight: 25, icon: '🛠️', color: '#2fd39a', text: 'Now you are the coder! Type real HTML, press Run Code to see your page, then press “Check my work” when you are done.' },
+  { id: 's4', name: 'Find the Bug', short: 'Debugging', weight: 15, icon: '🐞', color: '#ff5d73', text: 'Some code is broken. Can you find the mistake and fix it?' },
+  { id: 's5', name: 'Mini-Games', short: 'Mini Games', weight: 10, icon: '🎮', color: '#ffb020', text: 'Three quick games: match tags, build a page with blocks, and be a code detective.' },
+  { id: 's6', name: 'Final Challenge', short: 'Final Challenge', weight: 15, icon: '🚀', color: '#ff7a3d', text: 'One big mission! Create your own mini webpage about your favorite animal. Use everything you have learned.' }
+];
+const SECTION = Object.fromEntries(SECTIONS.map(s => [s.id, s]));
+const SKILLS = ['HTML Basics', 'Text & Structure', 'Links & Images', 'Lists', 'Attributes', 'Code Reading', 'Practical Coding', 'Debugging'];
+const STRENGTH_TEXT = {
+  'HTML Basics': 'You know what HTML is and how a page is put together',
+  'Text & Structure': 'You understand headings, paragraphs and nesting',
+  'Links & Images': 'You can create links and pictures',
+  'Lists': 'You understand bullet lists and numbered lists',
+  'Attributes': 'You know how attributes like href, src and alt work',
+  'Code Reading': 'You can read HTML and tell what it will show',
+  'Practical Coding': 'You can write real HTML that works',
+  'Debugging': 'You are good at spotting and fixing mistakes'
+};
+const PRACTICE_TEXT = {
+  'HTML Basics': 'HTML basics: tags, elements, head and body',
+  'Text & Structure': 'Headings, paragraphs, and closing tags in the right order',
+  'Links & Images': 'Links (a + href) and images (img + src + alt)',
+  'Lists': 'Lists: ul, ol and li',
+  'Attributes': 'Attributes inside the opening tag: href, src, alt',
+  'Code Reading': 'Reading code and imagining the result',
+  'Practical Coding': 'Writing complete pages from scratch',
+  'Debugging': 'Finding and fixing broken HTML'
+};
+const LEVELS = [
+  { min: 0, name: 'HTML Beginner', emoji: '🌱', msg: 'You are still building your HTML skills. That is completely okay — now you know what to practice next!' },
+  { min: 40, name: 'HTML Explorer', emoji: '🧭', msg: 'You are exploring HTML and you already know some important things. Keep practicing and you will grow fast!' },
+  { min: 60, name: 'HTML Apprentice', emoji: '🛠️', msg: 'Nice work! You know many HTML tools and can already use them. A little more practice and you will be a Builder!' },
+  { min: 75, name: 'HTML Builder', emoji: '🏗️', msg: 'Great job! You can read and build real HTML. You are ready for bigger projects!' },
+  { min: 90, name: 'HTML Master', emoji: '🏆', msg: 'Amazing! You really know your HTML. Teach a friend — it is the best way to learn even more!' }
+];
+const levelFor = pct => LEVELS.filter(l => pct >= l.min).pop();
+
+// =====================================================================
+// QUESTIONS
+// =====================================================================
+const C = s => ({ code: s });
+
+// ---- Section 1: knowledge quiz (15 questions, 1 point each) ----
+const QUIZ = [
+  { id: 'q1', type: 'mc', skill: 'HTML Basics', topic: 'What HTML is', q: 'What is HTML used for?',
+    o: ['Building the structure of web pages', 'Editing photos', 'Playing music', 'Charging a phone'], a: 0,
+    e: 'HTML gives a web page its structure: headings, text, pictures, links and more.', hint: 'Think about what a website is made of.' },
+  { id: 'q2', type: 'match', skill: 'HTML Basics', topic: 'Tags and elements', q: 'Match each part of this HTML with its name.', code: '<p>Hello</p>',
+    pairs: [['<p>', 'Opening tag'], ['</p>', 'Closing tag'], ['Hello', 'Content'], ['<p>Hello</p>', 'Whole element']], extra: ['Attribute'],
+    e: 'An opening tag, the content and a closing tag together make one element.', hint: 'The closing tag is the one with a slash.' },
+  { id: 'q3', type: 'tf', skill: 'HTML Basics', topic: 'head and body', q: 'The `<head>` is where the text and pictures that people read on the page go.', a: false,
+    e: 'Things you can see go inside `<body>`. The `<head>` holds information about the page, like its title.', hint: 'One of them is the “body” of the page. You can see a body!' },
+  { id: 'q4', type: 'mc', skill: 'Text & Structure', topic: 'The title tag', q: 'Where do you see the words inside `<title>`?',
+    o: ['On the tab at the top of the browser', 'As a big heading on the page', 'At the bottom of the page', 'Nowhere, they are secret'], a: 0,
+    e: 'The `<title>` text shows on the browser tab. It lives in the `<head>`.', hint: 'Look at the top of your browser when you open a website.' },
+  { id: 'q5', type: 'mc', skill: 'Text & Structure', topic: 'Headings (h1)', q: 'Which tag makes the BIGGEST heading?',
+    o: [C('<h1>'), C('<h3>'), C('<p>'), C('<strong>')], a: 0,
+    e: '`<h1>` is the main heading, so it is the biggest. `<h2>` and `<h3>` are smaller.', hint: 'Think about which heading number is the most important.' },
+  { id: 'q6', type: 'mc', skill: 'Text & Structure', topic: 'Opening and closing tags', q: 'Which code makes a paragraph correctly?',
+    o: [C('<p>Hello!</p>'), C('<p>Hello!<p>'), C('<paragraph>Hello!</paragraph>'), C('p>Hello!</p>')], a: 0,
+    e: 'A paragraph needs an opening `<p>` and a closing `</p>` with a slash.', hint: 'The closing tag needs a slash and the tag name is short.' },
+  { id: 'q7', type: 'match', skill: 'Text & Structure', topic: 'Text tags', q: 'Match each tag with what it does.',
+    pairs: [['<h1>', 'Big heading'], ['<p>', 'Paragraph of text'], ['<strong>', 'Makes text bold'], ['<em>', 'Makes text slanted'], ['<br>', 'Starts a new line']], extra: ['Shows a picture'],
+    e: '`<strong>` is bold, `<em>` is slanted (italic) and `<br>` breaks the line.', hint: 'Start with the ones you are sure about.' },
+  { id: 'q8', type: 'mc', skill: 'Text & Structure', topic: 'Headings vs paragraphs', q: 'What is the best use of the `<p>` tag?',
+    o: ['For normal sentences and paragraphs', 'For the main title of the page', 'For a clickable link', 'For a picture'], a: 0,
+    e: '`<p>` is for normal text. Headings use `<h1>` to `<h6>`.', hint: 'The “p” stands for a word you use when writing.' },
+  { id: 'q9', type: 'mc', skill: 'Text & Structure', topic: 'Nesting', q: 'Which one is nested correctly? (Tags must close in the right order.)',
+    o: [C('<div><p>Hi</p></div>'), C('<div><p>Hi</div></p>'), C('<div><p>Hi</p>'), C('<p><div>Hi</p></div>')], a: 0,
+    e: 'Close the inside tag first (`</p>`), then the outside tag (`</div>`) — like boxes inside boxes.', hint: 'The tag you open last must be closed first.' },
+  { id: 'q10', type: 'mc', skill: 'Links & Images', topic: 'Links', q: 'Which tag makes a clickable link?',
+    o: [C('<a>'), C('<link>'), C('<click>'), C('<url>')], a: 0,
+    e: 'The `<a>` (anchor) tag makes links.', hint: 'It is only one letter long!' },
+  { id: 'q11', type: 'mc', skill: 'Links & Images', topic: 'Links and href', q: 'Which link is written correctly?',
+    o: [C('<a href="https://example.com">Visit</a>'), C('<a>https://example.com</a>'), C('<a url="https://example.com">Visit</a>'), C('<link href="https://example.com">Visit</link>')], a: 0,
+    e: 'The web address goes inside the `href` attribute in the opening tag.', hint: 'Which attribute tells the link where to go?' },
+  { id: 'q12', type: 'mc', skill: 'Links & Images', topic: 'Images (src and alt)', q: 'In `<img src="cat.jpg" alt="A cat">`, what does `src` tell the browser?',
+    o: ['Which picture to show', 'What to say if the picture is missing', 'How big the picture is', 'What color the picture is'], a: 0,
+    e: '`src` is the picture file. `alt` is a short description that is used if the picture cannot show.', hint: 'src is short for “source”: where the picture comes from.' },
+  { id: 'q13', type: 'tf', skill: 'Links & Images', topic: 'Void elements', q: 'The `<img>` tag needs a closing tag like `</img>`.', a: false,
+    e: '`<img>` stands alone. It has no content, so it does not need a closing tag.', hint: 'Is there any text between a picture’s opening and closing tags?' },
+  { id: 'q14', type: 'match', skill: 'Lists', topic: 'Lists', q: 'Match each list tag with what it does.',
+    pairs: [['<ul>', 'Bullet list'], ['<ol>', 'Numbered list'], ['<li>', 'One item in a list']], extra: ['A picture'],
+    e: '`<ul>` = bullets, `<ol>` = numbers, `<li>` = each item inside the list.', hint: '“ul” = unordered, “ol” = ordered.' },
+  { id: 'q15', type: 'mc', skill: 'Attributes', topic: 'Attributes', q: 'In `<a href="https://example.com">Example</a>`, which part is the attribute?',
+    o: [C('href="https://example.com"'), C('Example'), C('<a'), C('</a>')], a: 0,
+    e: 'Attributes give extra information and live inside the opening tag. Here, `href` is the attribute name.', hint: 'Attributes look like name="value".' }
+];
+
+// ---- Section 2: read the code (3 versions of each: easy / normal / hard) ----
+const READ = [
+  { id: 'r1', skills: ['Text & Structure'], topic: 'Headings vs paragraphs', hint: 'Headings stand out. Which tag makes a big title?', v: {
+    normal: { code: '<h1>My Cat</h1>\n<p>I love cats.</p>', q: 'Which text will be the BIGGEST on the page?', o: ['My Cat', 'I love cats.', 'They are the same size', 'Nothing will show'], a: 0, e: '`<h1>` makes a big heading. Text inside `<p>` is normal size.' },
+    easy: { code: '<h1>My Cat</h1>\n<p>I love cats.</p>', q: 'Which words are inside the `<p>` element?', o: ['I love cats.', 'My Cat', 'My Cat and I love cats.', 'Nothing'], a: 0, e: 'The `<p>` element holds the words between `<p>` and `</p>`.' },
+    hard: { code: '<h2>At the Zoo</h2>\n<p>I saw a <strong>lion</strong> and an <em>elephant</em>.</p>', q: 'Which word will look BOLD?', o: ['lion', 'elephant', 'Zoo', 'saw'], a: 0, e: '`<strong>` makes text bold. `<em>` makes text slanted (italic).' } } },
+  { id: 'r2', skills: ['Lists'], topic: 'Lists', hint: 'Count the <li> lines, or look at whether the list tag is ul or ol.', v: {
+    normal: { code: '<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n</ul>', q: 'How many list items are there?', o: ['1', '2', '3', '4'], a: 1, e: 'Each `<li>` is one list item. There are two `<li>` elements.' },
+    easy: { code: '<ul>\n  <li>Red</li>\n  <li>Green</li>\n  <li>Blue</li>\n</ul>', q: 'How many list items are there?', o: ['1', '2', '3', '4'], a: 2, e: 'There are three `<li>` elements, so three list items.' },
+    hard: { code: '<ol>\n  <li>Wake up</li>\n  <li>Eat</li>\n  <li>Play</li>\n</ol>', q: 'What will the browser show?',
+      o: [{ html: '<ol style="margin:4px 0"><li>Wake up</li><li>Eat</li><li>Play</li></ol>' }, { html: '<ul style="margin:4px 0"><li>Wake up</li><li>Eat</li><li>Play</li></ul>' }, { html: '<p style="margin:4px 0">Wake up Eat Play</p>' }, 'Nothing, the page is empty'], a: 0, e: '`<ol>` makes a numbered list, so the items get 1, 2, 3.' } } },
+  { id: 'r3', skills: ['Links & Images', 'Attributes'], topic: 'Links', hint: 'The text between the tags is what people see on the page.', v: {
+    normal: { code: '<a href="https://example.com">Visit website</a>', q: 'What words will people see and click on the page?', o: ['Visit website', 'https://example.com', 'href', 'a'], a: 0, e: 'The words between the tags are shown. The `href` only says where the link goes.' },
+    easy: { code: '<a href="https://example.com">Click me!</a>', q: 'Where does this link go?', o: ['https://example.com', 'Click me!', 'a', 'Nowhere'], a: 0, e: 'The `href` attribute holds the address where the link goes.' },
+    hard: { code: '<p>Go <a href="https://school.org">to school</a> now.</p>', q: 'Which words are clickable?', o: ['to school', 'Go to school now.', 'Go', 'now.'], a: 0, e: 'Only the words inside `<a>` and `</a>` are the link.' } } },
+  { id: 'r4', skills: ['Text & Structure'], topic: 'div and nesting', hint: 'Look for the tag that wraps around the other tags.', v: {
+    normal: { code: '<div>\n  <h1>Pets</h1>\n  <p>Cats are fun.</p>\n</div>', q: 'Which elements are INSIDE the `<div>`?', o: [C('<h1> and <p>'), C('only <h1>'), C('only <p>'), 'Nothing'], a: 0, e: 'A `<div>` is a box. The `<h1>` and the `<p>` are nested inside it (they are its children).' },
+    easy: { code: '<div>\n  <p>Hello</p>\n</div>', q: 'Which tag is the box (container) that holds the paragraph?', o: [C('<div>'), C('<p>'), C('<html>'), C('<br>')], a: 0, e: '`<div>` is a container box for other elements.' },
+    hard: { code: '<ul>\n  <li>Cat</li>\n  <li>Dog</li>\n</ul>', q: 'The `<li>` elements are children of which element?', o: [C('<ul>'), C('<li>'), C('<body>'), C('<div>')], a: 0, e: 'Each `<li>` sits directly inside `<ul>`, so `<ul>` is their parent.' } } },
+  { id: 'r5', skills: ['Attributes', 'Links & Images'], topic: 'Images and attributes', hint: 'Attributes live inside the opening tag.', v: {
+    normal: { code: '<img src="dog.jpg" alt="A happy dog">', q: 'Which attribute tells the browser WHICH picture to show?', o: [C('src'), C('alt'), C('img'), C('dog')], a: 0, e: '`src` is the picture file. `alt` is the description.' },
+    easy: { code: '<img src="dog.jpg" alt="A happy dog">', q: 'What do we call `src` and `alt`?', o: ['Attributes', 'Elements', 'Closing tags', 'Headings'], a: 0, e: 'Words like `src` and `alt` that sit in the opening tag are attributes.' },
+    hard: { code: '<a href="https://example.com">\n  <img src="logo.png" alt="Logo">\n</a>', q: 'What happens when you click the picture?', o: ['You go to https://example.com', 'Nothing happens', 'The picture disappears', 'The page closes'], a: 0, e: 'The picture is inside the link, so clicking it follows the link.' } } }
+];
+
+// ---- Section 4: find the bug (multiple-choice slots + fix-it slots) ----
+const BUGMC = {
+  b1: { skills: ['Text & Structure'], topic: 'Closing tags', hint: 'Compare how the opening and closing tags look.', v: {
+    normal: { code: '<h1>My Website<h1>\n<p>Hello!', q: 'Can you find the mistake?', o: ['The closing tags are missing (they need a slash, like `</h1>`)', 'The words are too long', '`<p>` must come before `<h1>`', 'There is no mistake'], a: 0, e: 'A closing tag has a slash: `</h1>` and `</p>`. Without them the elements never end.' },
+    easy: { code: '<p>Hello there!', q: 'What is missing?', o: [C('</p>'), C('<img>'), C('href'), C('<br>')], a: 0, e: 'Every `<p>` needs a closing `</p>`.' },
+    hard: { code: '<p>I like <strong>pizza</p></strong>', q: 'What is wrong with this code?', o: ['The tags are closed in the wrong order', 'There are no closing tags at all', '`<strong>` must be outside the page', '`<p>` should be `<div>`'], a: 0, e: 'Close the inside tag first: `</strong>` and then `</p>`.' } } },
+  b2: { skills: ['Attributes', 'Links & Images'], topic: 'Attributes (href, src)', hint: 'A link needs to know where it goes. A picture needs to know which file to show.', v: {
+    normal: { code: '<a>Google</a>', q: 'This link does not work when you click it. Why?', o: ['It is missing the `href` attribute', 'The word Google is too short', 'It needs a `</link>` tag', 'Links need a picture'], a: 0, e: 'Without `href` the link does not know where to go.' },
+    easy: { code: '<img alt="A cat">', q: 'The picture does not show. What is missing?', o: [C('src'), C('href'), C('<h1>'), C('</img>')], a: 0, e: 'An `<img>` needs `src` to say which picture to show.' },
+    hard: { code: '<a href="https://example.com">Visit</a', q: 'What is wrong with this link?', o: ['The closing tag is missing its `>`', 'The `href` is spelled wrong', 'There is no text', 'The address needs spaces'], a: 0, e: 'A closing tag must end with `>`: `</a>`.' } } },
+  b5: { skills: ['Text & Structure'], topic: 'Page structure', hint: 'Which tag holds everything people can see?', v: {
+    normal: { code: '<html>\n<head>\n  <title>My Page</title>\n</head>\n  <p>Hello</p>\n</html>', q: 'Something is missing. What is it?', o: ['A `<body>` around the visible content', 'A second `<title>`', 'An `<img>` tag', 'An `<h1>` inside `<head>`'], a: 0, e: 'The things people see (like the paragraph) belong inside `<body>`.' },
+    easy: { code: '<p>Hello</h1>', q: 'Which closing tag should this paragraph use?', o: [C('</p>'), C('</h1>'), C('</div>'), C('</head>')], a: 0, e: 'The closing tag must match the opening tag: `<p>` ends with `</p>`.' },
+    hard: { code: '<ul>\n  <li>Cat</li>\n</ul>\n<li>Dog</li>', q: 'What is wrong here?', o: ['The Dog item is outside the `<ul>`', 'The `<ul>` needs an `href`', 'Cat must be bold', 'Nothing, it is fine'], a: 0, e: 'Every `<li>` must be inside a `<ul>` or `<ol>`.' } } }
+};
+
+// ---------- helpers for checking student HTML ----------
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+function tokenize(src) {
+  const re = /<!--[\s\S]*?-->|<!DOCTYPE[^>]*>|<(\/?)([A-Za-z][A-Za-z0-9-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>/gi;
+  const counts = {}, problems = [], stack = []; let openCount = 0, m;
+  while ((m = re.exec(src))) {
+    if (!m[2]) continue;
+    const closing = m[1] === '/', tag = m[2].toLowerCase(), self = /\/\s*$/.test(m[3]);
+    if (!closing) { counts[tag] = (counts[tag] || 0) + 1; openCount++; if (!VOID.has(tag) && !self) stack.push(tag); }
+    else {
+      if (VOID.has(tag)) { problems.push('`</' + tag + '>` is not needed: `<' + tag + '>` stands alone'); continue; }
+      if (stack[stack.length - 1] === tag) stack.pop();
+      else {
+        const i = stack.lastIndexOf(tag);
+        if (i === -1) problems.push('There is a `</' + tag + '>` with no opening tag');
+        else { problems.push('`<' + stack[stack.length - 1] + '>` must be closed before `</' + tag + '>`'); stack.length = i; }
+      }
+    }
+  }
+  stack.forEach(t => problems.push('`<' + t + '>` is never closed'));
+  if (/<\/?[A-Za-z]/.test(src.replace(re, ''))) problems.push('A tag is missing its `>`');
+  return { counts, problems, openCount };
+}
+function analyze(src) {
+  const doc = new DOMParser().parseFromString(src, 'text/html');
+  const t = tokenize(src);
+  return { src, doc, q: s => Array.from(doc.querySelectorAll(s)), counts: t.counts, problems: t.problems, openCount: t.openCount, empty: t.openCount === 0 };
+}
+const bal = c => c.empty ? 0 : Math.max(0, 1 - c.problems.length / Math.max(1, c.openCount));
+const K = (label, pts, test, skill, topic) => ({ label, pts, test, skill, topic });
+const attr = (el, a) => (el.getAttribute(a) || '').trim();
+
+// ---- Section 3 & 6: practical tasks (criteria give partial credit) ----
+function taskA(tier) {
+  const cr = [
+    K('A big heading with `<h1>`', 2, c => c.q('h1').length > 0, 'Text & Structure', 'Headings (h1)'),
+    K('The heading says “My Favorite Animal”', 1, c => c.q('h1').some(x => /my favou?rite animal/.test(norm(x.textContent))), 'Text & Structure', 'Headings (h1)'),
+    K('A paragraph with `<p>`', 2, c => c.q('p').length > 0, 'Text & Structure', 'Paragraphs (p)'),
+    K('The paragraph has some words (2 or more)', 1, c => c.q('p').some(x => wordCount(x.textContent) >= 2), 'Text & Structure', 'Paragraphs (p)'),
+    K('A list with `<ul>`', 1, c => c.q('ul').length > 0, 'Lists', 'Lists (ul)'),
+    K('At least 3 `<li>` items inside the list', 2, c => c.q('ul > li').length >= 3, 'Lists', 'List items (li)'),
+    K('All tags are closed and nested correctly', 1, c => !c.empty && c.problems.length === 0, 'Text & Structure', 'Closing and nesting tags')
+  ];
+  const bullets = ['A main heading that says `My Favorite Animal` (use `<h1>`)', 'A paragraph about the animal (use `<p>`)', 'A list with three animals (use `<ul>` and `<li>`)'];
+  if (tier === 'hard') { bullets.push('Bonus: put the list inside a `<div>` box'); cr.push(K('Bonus: the list is inside a `<div>`', 2, c => c.q('div ul, div ol').length > 0, 'Text & Structure', 'div and nesting')); }
+  return { title: 'Task 1: My favorite animal', bullets, starter: CMT + '\n', criteria: cr, main: 'Practical Coding', topic: 'Writing HTML',
+    hint: 'A list needs a `<ul>`, and every item goes in its own `<li>`. Don’t forget the closing tags!',
+    tip: tier === 'easy' ? '<h1>Big title</h1>\n<p>Some words.</p>\n<ul>\n  <li>One thing</li>\n</ul>' : null, rows: 11 };
+}
+function taskB(tier) {
+  const cr = [
+    K('A medium heading with `<h2>`', 2, c => c.q('h2').length > 0, 'Text & Structure', 'Headings (h2)'),
+    K('A paragraph with `<p>`', 1, c => c.q('p').length > 0, 'Text & Structure', 'Paragraphs (p)'),
+    K('One word made bold with `<strong>`', 2, c => c.q('strong').length > 0, 'Text & Structure', 'strong and em'),
+    K('One word made slanted with `<em>`', 1, c => c.q('em').length > 0, 'Text & Structure', 'strong and em'),
+    K('A new line made with `<br>`', 1, c => (c.counts.br || 0) > 0, 'Text & Structure', 'The br tag'),
+    K('A link made with `<a>`', 1, c => c.q('a').length > 0, 'Links & Images', 'Links'),
+    K('The link has an `href` with a web address', 1, c => c.q('a').some(a => /^https?:\/\//i.test(attr(a, 'href'))), 'Attributes', 'Attributes (href)'),
+    K('The link has words to click on', 1, c => c.q('a').some(a => a.textContent.trim().length > 0), 'Links & Images', 'Links')
+  ];
+  const bullets = ['A medium heading (use `<h2>`) about your favorite game or hobby', 'A paragraph (use `<p>`)', 'Make one word bold with `<strong>` and one word slanted with `<em>`', 'Start a new line inside the paragraph with `<br>`', 'Add a link to `https://example.com` with the words “Visit website”'];
+  if (tier === 'hard') { bullets.push('Bonus: put the link inside your paragraph'); cr.push(K('Bonus: the link is inside the paragraph', 2, c => c.q('p a').length > 0, 'Text & Structure', 'Nesting')); }
+  return { title: 'Task 2: Text and a link', bullets, starter: CMT + '\n', criteria: cr, main: 'Practical Coding', topic: 'Writing HTML',
+    hint: 'A link looks like this: an `<a>` tag, then `href="..."` inside the opening tag, then the words, then `</a>`.',
+    tip: tier === 'easy' ? '<p>I <strong>love</strong> pizza.</p>\n<a href="https://example.org">Click here</a>' : null, rows: 11 };
+}
+function taskC(tier) {
+  const cr = [
+    K('A numbered list with `<ol>`', 1, c => c.q('ol').length > 0, 'Lists', 'Lists (ol)'),
+    K('At least 3 `<li>` items inside the `<ol>`', 2, c => c.q('ol > li').length >= 3, 'Lists', 'List items (li)'),
+    K('A picture with `<img>`', 1, c => c.q('img').length > 0, 'Links & Images', 'Images'),
+    K('The picture has a `src`', 1, c => c.q('img').some(i => attr(i, 'src')), 'Attributes', 'Attributes (src)'),
+    K('The picture has `alt` words', 1, c => c.q('img').some(i => attr(i, 'alt')), 'Attributes', 'Attributes (alt)'),
+    K('A box made with `<div>`', 1, c => c.q('div').length > 0, 'Text & Structure', 'div and nesting'),
+    K('The `<div>` holds the picture AND a paragraph', 2, c => c.q('div').some(d => d.querySelector('img') && d.querySelector('p')), 'Text & Structure', 'div and nesting'),
+    K('All tags are closed and nested correctly', 1, c => !c.empty && c.problems.length === 0, 'Text & Structure', 'Closing and nesting tags')
+  ];
+  const bullets = ['A numbered list (use `<ol>`) of your 3 favorite foods', 'A picture with `<img>` (use `src="pizza.jpg"`, any file name works!) and some `alt` words', 'A `<div>` box that holds the picture and one sentence in a `<p>`'];
+  if (tier === 'hard') { bullets.push('Bonus: add an `<h2>` heading inside the `<div>`'); cr.push(K('Bonus: an `<h2>` inside the `<div>`', 2, c => c.q('div h2').length > 0, 'Text & Structure', 'div and nesting')); }
+  return { title: 'Task 3: Food, picture and box', bullets, starter: CMT + '\n', criteria: cr, main: 'Practical Coding', topic: 'Writing HTML',
+    hint: 'Put `<img ...>` and `<p>...</p>` between `<div>` and `</div>`. The picture needs `src="..."` and `alt="..."` inside its tag.',
+    tip: tier === 'easy' ? '<img src="photo.jpg" alt="A nice photo">\n<ol>\n  <li>First</li>\n</ol>' : null, rows: 11,
+    note: 'The preview shows a pretend picture for any file name you use.' };
+}
+function taskFinal(tier) {
+  const cr = [
+    K('One main heading with `<h1>`', 1, c => c.q('h1').length > 0, 'Text & Structure', 'Headings (h1)'),
+    K('Only ONE `<h1>` on the page', 1, c => c.q('h1').length === 1, 'Text & Structure', 'Headings (h1)'),
+    K('The heading has words', 1, c => c.q('h1').some(x => x.textContent.trim().length >= 2), 'Text & Structure', 'Headings (h1)'),
+    K('A paragraph with `<p>`', 2, c => c.q('p').length > 0, 'Text & Structure', 'Paragraphs (p)'),
+    K('The paragraph has at least 8 words', 1, c => c.q('p').some(x => wordCount(x.textContent) >= 8), 'Text & Structure', 'Paragraphs (p)'),
+    K('A picture with `<img>` and a `src`', 2, c => c.q('img').some(i => attr(i, 'src')), 'Links & Images', 'Images'),
+    K('The picture has `alt` words', 1, c => c.q('img').some(i => attr(i, 'alt')), 'Attributes', 'Attributes (alt)'),
+    K('A link with `<a>` and an `href`', 2, c => c.q('a').some(a => attr(a, 'href')), 'Links & Images', 'Links'),
+    K('The link has words to click on', 1, c => c.q('a').some(a => a.textContent.trim().length > 0), 'Links & Images', 'Links'),
+    K('A list with `<ul>` or `<ol>`', 1, c => c.q('ul, ol').length > 0, 'Lists', 'Lists'),
+    K('The list has at least 3 `<li>` items', 2, c => c.q('ul > li, ol > li').length >= 3, 'Lists', 'List items (li)'),
+    K('Tags are closed and nested correctly', 3, c => { const n = c.problems.length; return c.empty ? 0 : n === 0 ? 1 : n === 1 ? 2 / 3 : n === 2 ? 1 / 3 : 0; }, 'Text & Structure', 'Closing and nesting tags'),
+    K('Page skeleton: `<html>`, `<head>`, `<title>` and `<body>`', 2, c => ['html', 'head', 'title', 'body'].filter(t => c.counts[t]).length / 4, 'HTML Basics', 'HTML page structure')
+  ];
+  return { title: 'Final Challenge: my animal web page', bullets: ['One big heading with the name of your animal (`<h1>`)', 'A paragraph about the animal (`<p>`) with at least 8 words', 'A picture (`<img>` with `src` and `alt`) — any file name works!', 'A link (`<a>` with `href`) to a website about the animal', 'A list of 3 facts (`<ul>` and `<li>`)', 'Bonus points: build the whole page skeleton with `<html>`, `<head>`, `<title>` and `<body>`'],
+    starter: CMT + '\n', criteria: cr, main: 'Practical Coding', topic: 'Building a whole page',
+    hint: 'Plan first: heading, paragraph, picture, link, list. Write one at a time and press Run Code after each part!',
+    tip: tier === 'easy' ? '<!DOCTYPE html>\n<html>\n<head>\n  <title>My page</title>\n</head>\n<body>\n  <h1>Big title</h1>\n</body>\n</html>' : null, rows: 17,
+    note: 'The preview shows a pretend picture for any file name you use.' };
+}
+function fixUl(tier) {
+  const starters = {
+    easy: '<ul>\n  <li>Apple</li>\n  <li>Banana\n</ul>',
+    normal: '<ul>\n  <li>Apple\n  <li>Banana\n</ul>',
+    hard: '<ol>\n  <li>Wake up\n  <li>Eat\n  <li>Learn\n</ul>'
+  };
+  const hard = tier === 'hard';
+  const cr = [
+    K('Every tag is closed in the right order', 3, bal, 'Text & Structure', 'Closing tags'),
+    hard ? K('It is a numbered list `<ol>` with 3 items', 1, c => c.q('ol > li').length === 3, 'Lists', 'Lists') : K('The list has 2 `<li>` items', 1, c => c.q('ul > li').length === 2, 'Lists', 'Lists'),
+    hard ? K('The words Wake up, Eat and Learn are still there', 1, c => ['wake up', 'eat', 'learn'].every(w => norm(c.doc.body.textContent).includes(w)), 'Lists', 'Lists')
+         : K('The words Apple and Banana are still there', 1, c => norm(c.doc.body.textContent).includes('apple') && norm(c.doc.body.textContent).includes('banana'), 'Lists', 'Lists')
+  ];
+  return { title: 'Fix the list', bullets: hard ? ['Make this code correct. Keep all the words!', 'Hint for you: look at every `<li>` and at the last line.'] : ['Make this code correct. Keep all the words!', 'Look closely at how each list item ends.'], starter: starters[tier], criteria: cr, main: 'Debugging', topic: 'Closing tags', hint: 'Every `<li>` needs its own `</li>`, and the list must end with the matching closing tag.', rows: 7 };
+}
+function fixLink(tier) {
+  const starters = {
+    easy: '<a>Visit Google</a>',
+    normal: '<a>Visit Google</a>\n<img alt="A sleepy cat">',
+    hard: '<a href="https://example.com">Visit<a>\n<img src="cat.jpg" alt="cat"></img>'
+  };
+  let cr, bullets;
+  if (tier === 'easy') {
+    cr = [K('The link has an `href`', 2, c => c.q('a[href]').length > 0, 'Attributes', 'Attributes (href)'), K('The link goes to Google (`https://www.google.com`)', 2, c => c.q('a').some(a => /google/i.test(attr(a, 'href'))), 'Links & Images', 'Links'), K('The tags are still closed correctly', 1, bal, 'Text & Structure', 'Closing tags')];
+    bullets = ['This link does not work. Fix it so it goes to `https://www.google.com`.'];
+  } else if (tier === 'hard') {
+    cr = [K('Every tag is closed correctly (check the `<a>` and the `<img>`)', 3, bal, 'Text & Structure', 'Closing tags'), K('The link still has its `href`', 1, c => c.q('a[href]').length > 0, 'Attributes', 'Attributes (href)'), K('The picture still has its `src`', 1, c => c.q('img[src]').length > 0, 'Attributes', 'Attributes (src)')];
+    bullets = ['There are two small mistakes with closing tags. Can you fix them?', 'Remember: some tags stand alone and do not need a closing tag.'];
+  } else {
+    cr = [K('The link has an `href`', 1, c => c.q('a[href]').length > 0, 'Attributes', 'Attributes (href)'), K('The link goes to Google (`https://www.google.com`)', 1, c => c.q('a').some(a => /google/i.test(attr(a, 'href'))), 'Links & Images', 'Links'), K('The picture has a `src` (use `cat.jpg`)', 1, c => c.q('img[src]').length > 0, 'Attributes', 'Attributes (src)'), K('The `src` is not empty', 1, c => c.q('img').some(i => attr(i, 'src')), 'Links & Images', 'Images'), K('The tags are still closed correctly', 1, bal, 'Text & Structure', 'Closing tags')];
+    bullets = ['Make the link go to `https://www.google.com`.', 'Make the picture show `cat.jpg`.'];
+  }
+  return { title: 'Fix the link and picture', bullets, starter: starters[tier], criteria: cr, main: 'Debugging', topic: 'Attributes (href, src)', hint: 'Attributes go inside the opening tag, like `name="value"`.', rows: 6 };
+}
+
+// =====================================================================
+// SECTION MANAGEMENT: the list of all steps
+// =====================================================================
+const STEPS = [];
+(function buildSteps() {
+  const add = (sec, type, id, extra) => STEPS.push(Object.assign({ id, sec, type }, extra));
+  SECTIONS.forEach(s => add(s.id, 'intro', s.id + '-intro'));
+  const at = (sec, idx) => { let n = 0; for (let i = 0; i < STEPS.length; i++) { if (STEPS[i].sec === sec) { if (n === idx) return i; n++; } } return STEPS.length; };
+  const ins = (sec, step) => { // insert after the last step of that section
+    let last = -1; STEPS.forEach((x, i) => { if (x.sec === sec) last = i; }); STEPS.splice(last + 1, 0, step);
+  };
+  QUIZ.forEach(q => ins('s1', { id: q.id, sec: 's1', type: 'quiz', data: q }));
+  READ.forEach(r => ins('s2', { id: r.id, sec: 's2', type: 'read', data: r }));
+  [['c1', taskA], ['c2', taskB], ['c3', taskC]].forEach(([id, fn]) => ins('s3', { id, sec: 's3', type: 'code', make: fn }));
+  ins('s4', { id: 'b1', sec: 's4', type: 'bug', slot: BUGMC.b1 });
+  ins('s4', { id: 'b2', sec: 's4', type: 'bug', slot: BUGMC.b2 });
+  ins('s4', { id: 'b3', sec: 's4', type: 'code', make: fixUl });
+  ins('s4', { id: 'b4', sec: 's4', type: 'code', make: fixLink });
+  ins('s4', { id: 'b5', sec: 's4', type: 'bug', slot: BUGMC.b5 });
+  ins('s5', { id: 'g1', sec: 's5', type: 'match' });
+  ins('s5', { id: 'g2', sec: 's5', type: 'build' });
+  ins('s5', { id: 'g3', sec: 's5', type: 'detect' });
+  ins('s6', { id: 'f1', sec: 's6', type: 'code', make: taskFinal });
+  // sort so each section's intro comes first and sections are in order
+  const order = SECTIONS.map(s => s.id);
+  const intro = x => x.type === 'intro' ? 0 : 1;
+  const stable = STEPS.map((x, i) => [x, i]).sort((a, b) => order.indexOf(a[0].sec) - order.indexOf(b[0].sec) || intro(a[0]) - intro(b[0]) || a[1] - b[1]).map(p => p[0]);
+  STEPS.length = 0; stable.forEach(x => STEPS.push(x));
+})();
+const playable = () => STEPS.filter(s => s.type !== 'intro');
+
+// =====================================================================
+// SCORING
+// =====================================================================
+function finalizeResult(step, res) {
+  res.max = Math.round(res.max * 100) / 100;
+  if (res.hint && res.earned > res.max * HINT_CAP) {
+    const f = (res.max * HINT_CAP) / res.earned;
+    res.earned = res.max * HINT_CAP;
+    Object.keys(res.skills).forEach(k => { res.skills[k][0] *= f; });
+    res.capped = true;
+  }
+  res.earned = Math.round(res.earned * 100) / 100;
+  Object.keys(res.skills).forEach(k => { res.skills[k][0] = Math.round(res.skills[k][0] * 100) / 100; });
+  (res.mistakes || []).forEach(m => { m.sec = SECTION[step.sec].name; });
+  res.title = res.title || step.id;
+  state.results[step.id] = res;
+  if (!state.order.includes(step.id)) state.order.push(step.id);
+  save(); updateHeader(true);
+  return res;
+}
+function computeScores() {
+  const sec = {}, sk = {};
+  SECTIONS.forEach(s => { sec[s.id] = { e: 0, m: 0 }; });
+  STEPS.forEach(st => {
+    const r = state.results[st.id]; if (!r) return;
+    sec[st.sec].e += r.earned; sec[st.sec].m += r.max;
+    Object.entries(r.skills || {}).forEach(([k, [e, m]]) => { sk[k] = sk[k] || { e: 0, m: 0 }; sk[k].e += e; sk[k].m += m; });
+  });
+  const sections = SECTIONS.map(s => ({ id: s.id, name: s.name, short: s.short, weight: s.weight, color: s.color, e: sec[s.id].e, m: sec[s.id].m, pct: sec[s.id].m ? sec[s.id].e / sec[s.id].m * 100 : 0 }));
+  const total = sections.reduce((a, s) => a + s.weight * s.pct / 100, 0);
+  const skills = SKILLS.filter(k => sk[k] && sk[k].m > 0).map(k => ({ name: k, e: sk[k].e, m: sk[k].m, pct: sk[k].e / sk[k].m * 100 }));
+  return { sections, skills, total };
+}
+const xpNow = () => Math.round(Object.values(state.results).reduce((a, r) => a + r.earned, 0) * 10);
+function tierFor(step) {
+  if (state.tiers[step.id]) return state.tiers[step.id];
+  const rec = state.order.slice(-5).map(id => state.results[id]).filter(Boolean).map(r => r.earned / r.max);
+  let t = 'normal';
+  if (rec.length >= 3) { const avg = rec.reduce((a, b) => a + b, 0) / rec.length; if (avg >= 0.85) t = 'hard'; else if (avg <= 0.5) t = 'easy'; }
+  state.tiers[step.id] = t; save(); return t;
+}
+
+// =====================================================================
+// HEADER + NAVIGATION
+// =====================================================================
+function progressInfo() {
+  return SECTIONS.map(s => {
+    const items = playable().filter(x => x.sec === s.id);
+    return { s, total: items.length, done: items.filter(x => state.results[x.id]).length };
+  });
+}
+function updateHeader(animate) {
+  const top = $('#topbar'); top.hidden = state.screen === 'welcome';
+  const p = $('#progress'); p.hidden = state.screen !== 'step'; p.innerHTML = '';
+  const cur = STEPS[state.stepIndex];
+  progressInfo().forEach(i => {
+    const seg = h('div', { class: 'seg' + (cur && cur.sec === i.s.id ? ' now' : ''), title: i.s.name + ': ' + i.done + ' of ' + i.total, style: 'flex:' + i.total });
+    const f = h('i'); f.style.background = i.s.color; f.style.width = (i.done / i.total * 100) + '%'; seg.append(f); p.append(seg);
+  });
+  p.setAttribute('aria-valuenow', Math.round(playable().filter(x => state.results[x.id]).length / playable().length * 100));
+  $('#who').textContent = state.name ? '👤 ' + state.name : '';
+  const xp = $('#xp'); const to = xpNow();
+  if (animate) countUp(xp, to, 600, v => '⭐ ' + Math.round(v)); else { xp.dataset.v = to; xp.textContent = '⭐ ' + to; }
+  shownXP = to;
+  $('#btn-sound').textContent = state.sound ? '🔊' : '🔇';
+}
+function render() {
+  updateHeader(false);
+  if (state.screen === 'welcome') welcomeScreen();
+  else if (state.screen === 'step') renderStep();
+  else if (state.screen === 'results') resultsScreen();
+  else if (state.screen === 'teacher') teacherScreen();
+}
+function goNext() {
+  state.stepIndex++;
+  if (state.stepIndex >= STEPS.length) { finishAll(); return; }
+  save(); render();
+}
+function nextButton(label) {
+  const last = STEPS[state.stepIndex + 1] === undefined;
+  const b = h('button', { class: 'btn mint', type: 'button', onclick: () => { SFX.click(); goNext(); } }, label || (last ? 'See my results 🏆' : 'Next ▶'));
+  setTimeout(() => b.focus({ preventScroll: false }), 50);
+  return b;
+}
+async function startOver() {
+  const ok = await confirmBox('This will delete the saved progress and start from the beginning. Do you really want that?', 'Yes, start over', 'No, keep it', { danger: true, title: 'Start over?' });
+  if (!ok) return;
+  const snd = state.sound; state = freshState(snd);
+  try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+  render();
+}
+
+// =====================================================================
+// WELCOME SCREEN
+// =====================================================================
+function welcomeScreen() {
+  const main = clearMain();
+  const input = h('input', { class: 'name-input', type: 'text', maxlength: '24', placeholder: 'Type your name', 'aria-label': 'Your name', autocomplete: 'off' });
+  const box = h('section', { class: 'card hero enter' });
+  box.append(
+    h('div', { style: 'font-size:56px' }, '🤖'),
+    h('h1', { class: 'title', html: '<span class="br">&lt;</span>HTML Adventure<span class="sl">/&gt;</span>' }),
+    h('p', { class: 'tagline' }, 'Let’s see how much you remember!'),
+    h('p', { class: 'lead' }, 'You will complete several challenges about HTML. Some are questions, some are coding tasks, and some are mini-games. It takes about 30 to 45 minutes. Do your best!')
+  );
+  if (state.phase === 'new') {
+    const go = () => {
+      const n = input.value.trim().replace(/\s+/g, ' ');
+      if (!n) { input.style.borderColor = 'var(--coral)'; input.animate([{ transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'none' }], { duration: 300 }); toast('Please type your name first 🙂'); input.focus(); return; }
+      state.name = n; state.phase = 'playing'; state.screen = 'step'; state.stepIndex = 0; state.startedAt = new Date().toISOString(); save(); SFX.ok(); render();
+    };
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    box.append(h('p', { style: 'font-weight:800;margin-bottom:8px' }, 'What is your name?'), input, h('div', { style: 'margin-top:22px' }, h('button', { class: 'btn big', type: 'button', onclick: go }, 'START ADVENTURE')));
+    setTimeout(() => input.focus(), 100);
+  } else if (state.phase === 'playing') {
+    const done = playable().filter(x => state.results[x.id]).length;
+    box.append(h('p', { class: 'lead', style: 'font-weight:800' }, 'Welcome back, ' + state.name + '! You finished ' + done + ' of ' + playable().length + ' challenges.'),
+      h('div', { class: 'row', style: 'justify-content:center' },
+        h('button', { class: 'btn big mint', type: 'button', onclick: () => { state.screen = 'step'; SFX.ok(); render(); } }, 'Continue'),
+        h('button', { class: 'btn ghost', type: 'button', onclick: startOver }, 'Start Over')));
+  } else {
+    box.append(h('p', { class: 'lead', style: 'font-weight:800' }, state.name + ' has finished the adventure!'),
+      h('div', { class: 'row', style: 'justify-content:center' },
+        h('button', { class: 'btn big mint', type: 'button', onclick: () => { state.screen = 'results'; render(); } }, 'See results'),
+        h('button', { class: 'btn ghost', type: 'button', onclick: startOver }, 'Start New Student')));
+  }
+  main.append(box);
+  const hist = readHistory();
+  if (hist.length) main.append(h('p', { style: 'text-align:center' }, h('button', { class: 'btn small ghost', type: 'button', onclick: showHistory }, '👩‍🏫 Teacher: saved results (' + hist.length + ')')));
+}
+function showHistory() {
+  const ov = h('div', { class: 'overlay' });
+  const list = h('div');
+  const draw = () => {
+    list.innerHTML = '';
+    const hist = readHistory();
+    if (!hist.length) list.append(h('p', null, 'No saved results.'));
+    hist.forEach(x => list.append(h('div', { class: 'row between', style: 'border-bottom:2px solid #eee;padding:8px 0' },
+      h('div', null, h('strong', null, x.name), ' — ' + x.score + '/100 — ' + x.level, h('div', { class: 'small muted' }, new Date(x.date).toLocaleString())),
+      h('button', { class: 'btn small', type: 'button', onclick: () => copyText(x.report) }, 'Copy'))));
+  };
+  draw();
+  ov.append(h('div', { class: 'modal' }, h('h3', null, 'Saved results on this computer'), list,
+    h('div', { class: 'row end' },
+      h('button', { class: 'btn small danger', type: 'button', onclick: async () => { if (await confirmBox('Delete all saved results from this computer?', 'Delete all', 'Cancel', { danger: true })) { try { localStorage.removeItem(HISTORY_KEY); } catch (e) { /* ignore */ } ov.remove(); render(); } } }, 'Delete all'),
+      h('button', { class: 'btn', type: 'button', onclick: () => ov.remove() }, 'Close'))));
+  $('#modal-root').append(ov);
+}
+
+// =====================================================================
+// STEP DISPATCH
+// =====================================================================
+function renderStep() {
+  const step = STEPS[state.stepIndex];
+  ui = { hint: false };
+  if (!step) { finishAll(); return; }
+  if (step.type !== 'intro' && state.results[step.id]) { doneAlready(step); return; }
+  switch (step.type) {
+    case 'intro': introScreen(step); break;
+    case 'quiz': quizScreen(step); break;
+    case 'read': readScreen(step); break;
+    case 'bug': bugScreen(step); break;
+    case 'code': codeScreen(step); break;
+    case 'match': matchGameScreen(step); break;
+    case 'build': buildGameScreen(step); break;
+    case 'detect': detectGameScreen(step); break;
+  }
+}
+function doneAlready(step) {
+  const r = state.results[step.id], main = clearMain();
+  main.append(h('section', { class: 'card enter' }, h('h2', null, '✅ You already finished this one!'),
+    h('p', null, 'You got ' + fmtPts(r.earned) + ' of ' + fmtPts(r.max) + ' points.'), h('div', { class: 'row end' }, nextButton())));
+}
+function mascot(text, face) {
+  return h('div', { class: 'mascot' }, h('div', { class: 'face' }, face || '🤖'), h('div', { class: 'bubble' }, h('p', { html: fmt(text) })));
+}
+function introScreen(step) {
+  const s = SECTION[step.sec], main = clearMain();
+  const n = SECTIONS.indexOf(s) + 1, count = playable().filter(x => x.sec === s.id).length;
+  main.append(h('section', { class: 'card enter', style: 'text-align:center' },
+    h('div', { style: 'font-size:70px' }, s.icon),
+    h('span', { class: 'chip sec', style: 'background:' + s.color }, 'Level ' + n + ' of ' + SECTIONS.length),
+    h('h1', { style: 'font-size:44px;margin:10px 0' }, s.name),
+    h('div', { style: 'max-width:640px;margin:0 auto 16px' }, mascot(s.text)),
+    h('p', { class: 'muted' }, count + (count === 1 ? ' challenge' : ' challenges') + ' in this level.' + (step.sec === 's1' ? ' Stuck? Press 💡 Hint. A hint is okay, but then you can earn up to 80% of the points.' : '')),
+    h('div', { style: 'margin-top:16px' }, nextButton('Let’s go!'))));
+}
+function topRow(left, skill, tier) {
+  return h('div', { class: 'row' }, h('span', { class: 'chip' }, left), skill ? h('span', { class: 'chip', style: 'background:#e9f9f2;color:#12805c' }, skill) : null, tier === 'hard' ? h('span', { class: 'chip hot' }, '🔥 Bonus challenge') : null);
+}
+function hintWidget(text) {
+  if (!text) return null;
+  const out = h('div', { class: 'hint-text', hidden: true, html: '💡 ' + fmt(text) });
+  const btn = h('button', { class: 'btn small ghost', type: 'button', onclick: () => { ui.hint = true; out.hidden = false; btn.disabled = true; btn.textContent = '💡 Hint used'; SFX.click(); } }, '💡 Hint');
+  const box = h('div', { class: 'hint-wrap' }, btn, h('span', { class: 'hint-note' }, 'With a hint you can earn up to 80% of the points.'), out);
+  box.lock = () => { btn.disabled = true; };
+  return box;
+}
+function optionNode(o) {
+  if (typeof o === 'string') return h('span', { html: fmt(o) });
+  if (o.code) return h('span', { class: 'opt-code', html: hl(o.code) });
+  return h('div', { class: 'opt-html', html: o.html });
+}
+function getPerm(id, n, keep) {
+  if (keep) return [...Array(n).keys()];
+  let p = state.orders[id];
+  if (!p || p.length !== n) { p = shuffle([...Array(n).keys()]); state.orders[id] = p; }
+  return p;
+}
+function optText(o) { return typeof o === 'string' ? o : (o.code || 'a picture of the code'); }
+function feedback(ok, text, pts, max, extraNode) {
+  return h('div', { class: 'fb ' + (ok ? 'good' : 'bad') }, h('div', { class: 'fb-head' }, ok ? '🎉 Correct!' : '🤔 Not quite!'),
+    h('p', { html: fmt(text) }), h('p', { class: 'pts' }, '+' + fmtPts(pts) + ' / ' + fmtPts(max) + ' points' + (ui.hint ? ' (hint used: max 80%)' : '')), extraNode || null);
+}
+
+// ---- generic multiple-choice screen (used by quiz, read-the-code and bug-finding) ----
+function choiceScreen(step, cfg) {
+  const main = clearMain();
+  const card = h('section', { class: 'card enter' });
+  const hint = hintWidget(cfg.hint);
+  card.append(topRow(cfg.label, cfg.skillLabel, cfg.tier), h('h2', { class: 'q', html: fmt(cfg.q) }));
+  if (cfg.code) card.append(codeBlock(cfg.code));
+  if (hint) card.append(hint);
+  const perm = getPerm(step.id, cfg.o.length, cfg.keepOrder);
+  const grid = h('div', { class: 'opts' + (cfg.o.some(x => typeof x === 'string' && x.length > 55) ? ' one' : '') });
+  const fb = h('div'); let answered = false; const btns = [];
+  perm.forEach((oi, pos) => {
+    const b = h('button', { class: 'opt', type: 'button', onclick: () => choose(oi, b) }, h('span', { class: 'key' }, 'ABCD'[pos]), optionNode(cfg.o[oi]));
+    b.dataset.oi = oi; btns.push(b); grid.append(b);
+  });
+  function choose(oi, b) {
+    if (answered) return; answered = true; if (hint) hint.lock();
+    const ok = oi === cfg.a;
+    btns.forEach(x => { x.disabled = true; if (+x.dataset.oi === cfg.a) x.classList.add('right'); });
+    if (!ok) b.classList.add('wrong');
+    ok ? SFX.ok() : SFX.bad();
+    const earned = ok ? cfg.points : 0;
+    const skills = {}; cfg.skills.forEach(k => { skills[k] = [earned, cfg.points]; });
+    const mistakes = ok ? [] : [{ topic: cfg.topic, text: cfg.log + ' → chose: ' + optText(cfg.o[oi]) }];
+    const res = finalizeResult(step, { earned, max: cfg.points, skills, hint: ui.hint, mistakes, title: cfg.log, detail: { chosen: optText(cfg.o[oi]), correct: optText(cfg.o[cfg.a]) } });
+    const extra = [];
+    if (cfg.preview) { const pv = makePreview(120); pv.show(cfg.preview); extra.push(h('p', { style: 'margin:14px 0 6px;font-weight:800' }, 'Here is what the browser shows:'), pv.el); }
+    fb.append(feedback(ok, cfg.e, res.earned, res.max, h('div', null, extra, h('div', { class: 'row end' }, nextButton()))));
+  }
+  card.append(grid, fb); main.append(card);
+}
+
+// ---- Section 1 ----
+function quizScreen(step) {
+  const q = step.data, n = STEPS.filter(s => s.sec === 's1' && s.type === 'quiz').indexOf(step) + 1;
+  const label = 'Question ' + n + ' of ' + QUIZ.length;
+  if (q.type === 'match') { matchQuestionScreen(step, q, label); return; }
+  const cfg = { label, skillLabel: q.skill, q: q.q, o: q.type === 'tf' ? ['True', 'False'] : q.o, a: q.type === 'tf' ? (q.a ? 0 : 1) : q.a, keepOrder: q.type === 'tf',
+    e: q.e, hint: q.hint, points: 1, skills: [q.skill], topic: q.topic, log: 'Q' + n + ': ' + q.q.replace(/`/g, '') };
+  choiceScreen(step, cfg);
+}
+function matchQuestionScreen(step, q, label) {
+  const main = clearMain(), hint = hintWidget(q.hint);
+  const card = h('section', { class: 'card enter' }, topRow(label, q.skill), h('h2', { class: 'q', html: fmt(q.q) }));
+  if (q.code) card.append(codeBlock(q.code));
+  const all = q.pairs.map(p => p[1]).concat(q.extra || []);
+  const choices = getPerm(step.id, all.length).map(i => all[i]);
+  const rows = q.pairs.map(([left, right]) => {
+    const sel = h('select', { class: 'sel', 'aria-label': 'Choose the meaning of ' + left }, h('option', { value: '' }, 'Choose…'), choices.map(c => h('option', { value: c }, c)));
+    card.append(h('div', { class: 'mrow' }, h('span', { class: 'opt-code', html: hl(left) }), h('span', { class: 'arrow' }, '➜'), sel));
+    return { sel, right, left };
+  });
+  if (hint) card.append(hint);
+  const fb = h('div'); let done = false;
+  const check = h('button', { class: 'btn', type: 'button', onclick: () => {
+    if (done) return;
+    if (rows.some(r => !r.sel.value)) { toast('Choose an answer for every row 🙂'); return; }
+    done = true; check.disabled = true; if (hint) hint.lock(); rows.forEach(r => { r.sel.disabled = true; });
+    let right = 0; const wrongs = [];
+    rows.forEach(r => { const ok = r.sel.value === r.right; r.sel.classList.add(ok ? 'right' : 'wrong'); if (ok) right++; else wrongs.push(r.left + ' ≠ ' + r.sel.value); });
+    const all = right === rows.length; all ? SFX.ok() : SFX.bad();
+    const earned = right / rows.length;
+    const res = finalizeResult(step, { earned, max: 1, skills: { [q.skill]: [earned, 1] }, hint: ui.hint, title: 'Q' + label.split(' ')[1] + ': ' + q.q.replace(/`/g, ''),
+      mistakes: all ? [] : [{ topic: q.topic, text: label + ' (matching): ' + wrongs.join('; ') }] });
+    const key = q.pairs.map(p => p[0] + ' = ' + p[1]).join('   |   ');
+    const f = feedback(all, all ? q.e : 'You matched ' + right + ' of ' + rows.length + '. ' + q.e, res.earned, res.max, h('div', null, all ? null : h('p', { class: 'small muted' }, 'Right answers: ' + key), h('div', { class: 'row end' }, nextButton())));
+    fb.append(f);
+  } }, 'Check my answers');
+  card.append(h('div', { class: 'row end' }, check), fb); main.append(card);
+}
+
+// ---- Section 2 ----
+function readScreen(step) {
+  const r = step.data, tier = tierFor(step), v = r.v[tier] || r.v.normal;
+  const n = STEPS.filter(s => s.sec === 's2').filter(s => s.type === 'read').indexOf(step) + 1;
+  choiceScreen(step, { label: 'Read the code ' + n + ' of ' + READ.length, skillLabel: 'Code Reading', tier, q: v.q, code: v.code, o: v.o, a: v.a, e: v.e, hint: r.hint, points: 2,
+    skills: ['Code Reading'].concat(r.skills), topic: r.topic, log: 'Read code ' + n + ': ' + v.q.replace(/`/g, ''), preview: v.code });
+}
+
+// ---- Section 4 (multiple choice bugs) ----
+function bugScreen(step) {
+  const s = step.slot, tier = tierFor(step), v = s.v[tier] || s.v.normal;
+  const n = STEPS.filter(x => x.sec === 's4').indexOf(step) ; // includes intro at index 0
+  choiceScreen(step, { label: 'Find the bug ' + n + ' of 5', skillLabel: 'Debugging', tier, q: v.q, code: v.code, o: v.o, a: v.a, e: v.e, hint: s.hint, points: 3,
+    skills: ['Debugging'].concat(s.skills), topic: s.topic, log: 'Bug ' + n + ': ' + v.code.replace(/\n/g, ' ').slice(0, 50) });
+}
+
+// =====================================================================
+// CODE EDITOR + PREVIEW
+// =====================================================================
+function makeEditor({ value, rows, onInput }) {
+  const wrap = h('div', { class: 'editor' }); wrap.style.setProperty('--rows', rows || 10);
+  const code = h('code'), pre = h('pre', { 'aria-hidden': 'true' }, code);
+  const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off', autocorrect: 'off', wrap: 'off', 'aria-label': 'Type your HTML code here' });
+  ta.value = value || '';
+  const sync = () => { code.innerHTML = hl(ta.value) + '\n'; pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };
+  ta.addEventListener('input', () => { sync(); if (onInput) onInput(ta.value); });
+  ta.addEventListener('scroll', () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; });
+  ta.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.metaKey) return;
+    const v = ta.value, pos = ta.selectionStart, ls = v.lastIndexOf('\n', pos - 1) + 1;
+    const ind = (v.slice(ls, pos).match(/^[ \t]*/) || [''])[0];
+    if (ind) { e.preventDefault(); ta.setRangeText('\n' + ind, pos, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); }
+  });
+  wrap.append(pre, ta); sync();
+  return { el: wrap, ta, get value() { return ta.value; }, set(v) { ta.value = v; sync(); if (onInput) onInput(v); }, lock() { ta.readOnly = true; wrap.classList.add('locked'); } };
+}
+const EMOJI = [[/cat|kitten/, '🐱'], [/dog|puppy/, '🐶'], [/fish/, '🐟'], [/lion/, '🦁'], [/bird|parrot/, '🐦'], [/horse/, '🐴'], [/pizza/, '🍕'], [/pasta|spaghetti/, '🍝'], [/apple/, '🍎'], [/rabbit|bunny/, '🐰'],
+  [/panda/, '🐼'], [/elephant/, '🐘'], [/monkey/, '🐵'], [/tiger/, '🐯'], [/turtle/, '🐢'], [/dolphin|whale/, '🐬'], [/snake/, '🐍'], [/frog/, '🐸'], [/bear/, '🐻'], [/car/, '🚗'], [/robot|game/, '🤖'], [/logo|school|house/, '🏠']];
+function placeholderSrc(hintText) {
+  const t = String(hintText || '').toLowerCase(); let em = '🖼️';
+  for (const [re, e] of EMOJI) if (re.test(t)) { em = e; break; }
+  const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'><rect width='200' height='150' rx='16' fill='#dfe7ff'/><text x='100' y='98' font-size='70' text-anchor='middle'>" + em + '</text></svg>';
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+// Turns the student's HTML into a safe page. It is shown in a sandboxed iframe (no scripts, no network).
+function previewDoc(src) {
+  const doc = new DOMParser().parseFromString(src, 'text/html');
+  doc.querySelectorAll('script,iframe,frame,frameset,object,embed,link,meta,base,form,input,button,select,textarea,style,noscript,audio,video,svg,math,template').forEach(n => n.remove());
+  doc.body.querySelectorAll('*').forEach(el => {
+    Array.from(el.attributes).forEach(a => {
+      const n = a.name.toLowerCase();
+      if (n.startsWith('on') || n === 'srcdoc' || n === 'srcset' || n === 'formaction') el.removeAttribute(a.name);
+      else if ((n === 'href' || n === 'src') && /^\s*(javascript|vbscript|data:text)/i.test(a.value)) el.removeAttribute(a.name);
+    });
+  });
+  doc.body.querySelectorAll('img').forEach(img => {
+    const s = (img.getAttribute('src') || '').trim();
+    if (s && !/^data:image\//i.test(s)) img.setAttribute('src', placeholderSrc(s + ' ' + (img.getAttribute('alt') || '')));
+  });
+  const body = src.trim() && doc.body.innerHTML.trim() ? doc.body.innerHTML : '<p style="color:#888;font-family:sans-serif">Your page will show up here when you press Run Code ✨</p>';
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src data:; style-src \'unsafe-inline\'"><base target="_blank"><style>body{margin:14px;background:#fff;color:#111;font-size:16px}</style></head><body>' + body + '</body></html>';
+}
+function makePreview(height) {
+  const frame = h('iframe', { class: 'pv-frame', title: 'Preview of the page', sandbox: '' });
+  frame.style.height = (height || 260) + 'px';
+  return { el: h('div', { class: 'pv' }, h('div', { class: 'pv-bar' }, '👀 The page in the browser'), frame), show: src => { frame.srcdoc = previewDoc(src); } };
+}
+
+// ---- practical coding screen (sections 3, 4 and 6) ----
+function codeScreen(step) {
+  const tier = tierFor(step), cfg = step.make(tier), main = clearMain();
+  const sec = SECTION[step.sec];
+  const hint = hintWidget(cfg.hint);
+  const draft = state.drafts[step.id];
+  const editor = makeEditor({ value: draft !== undefined ? draft : cfg.starter, rows: cfg.rows, onInput: v => { state.drafts[step.id] = v; saveSoon(); } });
+  const preview = makePreview(step.sec === 's6' ? 380 : cfg.rows * 22 + 20);
+  const left = h('div'), right = h('div');
+  left.append(h('div', { class: 'card', style: 'background:var(--soft);box-shadow:none;padding:16px 20px' },
+    h('strong', null, '🎯 Your mission'), h('ul', { class: 'mission' }, cfg.bullets.map(b => h('li', { html: fmt(b) })))));
+  if (cfg.tip) left.append(h('div', { class: 'tip' }, h('strong', null, '📝 A small example to help you: '), h('div', { class: 'code-block', style: 'font-size:16px;margin:8px 0 0', html: hl(cfg.tip) })));
+  if (cfg.note) left.append(h('p', { class: 'small muted' }, '🖼️ ' + cfg.note));
+  left.append(editor.el);
+  const runB = h('button', { class: 'btn mint', type: 'button', onclick: () => { SFX.click(); preview.show(editor.value); } }, '▶ Run Code');
+  const resetB = h('button', { class: 'btn ghost small', type: 'button', onclick: async () => { if (await confirmBox('Your code will go back to the start. Do you want that?', 'Yes, reset', 'No, keep my code')) { editor.set(cfg.starter); preview.show(editor.value); } } }, '↺ Reset');
+  const checkB = h('button', { class: 'btn', type: 'button', onclick: submit }, '✔ Check my work');
+  left.append(h('div', { class: 'row', style: 'margin-top:14px' }, runB, resetB, checkB));
+  if (hint) left.append(hint);
+  right.append(preview.el);
+  const out = h('div');
+  main.append(h('section', { class: 'card enter' }, topRow(sec.icon + ' ' + sec.name, null, tier), h('h2', { style: 'font-size:28px;margin-top:10px' }, cfg.title),
+    h('div', { class: 'split' }, left, right), out));
+  preview.show(editor.value);
+
+  async function submit() {
+    if (!editor.value.replace(/<!--[\s\S]*?-->/g, '').trim()) { toast('Write some HTML first! ✍️'); return; }
+    const ok = await confirmBox('Are you finished? After checking, you cannot change this task.', 'Yes, check it!', 'Not yet');
+    if (!ok) return;
+    preview.show(editor.value); editor.lock(); [runB, resetB, checkB].forEach(b => { b.disabled = true; }); if (hint) hint.lock();
+    const c = analyze(editor.value);
+    const items = [], skills = {}, mistakes = []; let earned = 0, max = 0;
+    cfg.criteria.forEach(k => {
+      let v = k.test(c); v = typeof v === 'number' ? Math.max(0, Math.min(1, v)) : (v ? 1 : 0);
+      const got = Math.round(k.pts * v * 2) / 2;
+      items.push({ label: k.label, pts: k.pts, got }); earned += got; max += k.pts;
+      if (k.skill) { skills[k.skill] = skills[k.skill] || [0, 0]; skills[k.skill][0] += got; skills[k.skill][1] += k.pts; }
+      if (got < k.pts) mistakes.push({ topic: k.topic || cfg.topic, text: cfg.title + ': ' + k.label.replace(/`/g, '') + (got > 0 ? ' (partly)' : '') });
+    });
+    skills[cfg.main] = [earned, max];
+    const res = finalizeResult(step, { earned, max, skills, hint: ui.hint, items, mistakes, title: cfg.title, code: editor.value.slice(0, 4000) });
+    const good = res.earned / res.max >= 0.75; good ? SFX.ok() : SFX.bad();
+    const list = items.map(i => {
+      const cls = i.got >= i.pts ? 'ok' : i.got > 0 ? 'part' : 'no';
+      return h('div', { class: 'crit ' + cls }, h('span', { class: 'ic' }, cls === 'ok' ? '✅' : cls === 'part' ? '🟡' : '❌'), h('span', { html: fmt(i.label) }), h('span', { class: 'pp' }, fmtPts(i.got) + ' / ' + fmtPts(i.pts)));
+    });
+    const probs = c.problems.length ? h('p', { class: 'small muted' }, 'Tag check: ' + c.problems.slice(0, 3).map(p => p.replace(/`/g, '')).join(' · ')) : null;
+    out.append(h('div', { class: 'fb ' + (good ? 'good' : 'bad') },
+      h('div', { class: 'fb-head' }, good ? '🎉 Great work!' : '👍 Good try!'),
+      h('p', { class: 'pts' }, 'You earned ' + fmtPts(res.earned) + ' of ' + fmtPts(res.max) + ' points' + (res.capped ? ' (hint used: max 80%)' : '')),
+      list, probs, h('div', { class: 'row end' }, nextButton())));
+    out.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// =====================================================================
+// MINI GAMES
+// =====================================================================
+function gameFinish(step, main, card, e, max, skill, mistakes, title) {
+  const res = finalizeResult(step, { earned: e, max, skills: { [skill]: [e, max] }, hint: ui.hint, mistakes, title });
+  SFX.win();
+  card.append(h('div', { class: 'fb good' }, h('div', { class: 'fb-head' }, '🏁 Game complete!'),
+    h('p', { class: 'pts' }, 'You earned ' + fmtPts(res.earned) + ' of ' + fmtPts(res.max) + ' points' + (res.capped ? ' (hint used: max 80%)' : '')), h('div', { class: 'row end' }, nextButton())));
+}
+
+// ---- GAME 1: TAG MATCH ----
+const MATCH_ROUNDS = [
+  [['<p>', 'Creates a paragraph'], ['<h1>', 'Creates a big heading'], ['<img>', 'Displays a picture'], ['<a>', 'Makes a clickable link'], ['<ul>', 'Starts a bullet list'], ['<li>', 'One item inside a list']],
+  [['<ol>', 'Starts a numbered list'], ['<strong>', 'Makes text bold'], ['<em>', 'Makes text slanted'], ['<br>', 'Starts a new line'], ['<div>', 'A box that holds other elements'], ['<title>', 'The name on the browser tab']]
+];
+function matchGameScreen(step) {
+  const main = clearMain(); let round = 0, total = 0; const mist = [];
+  const MAX = MATCH_ROUNDS.reduce((a, r) => a + r.length, 0);
+  function startRound() {
+    main.innerHTML = '';
+    const pairs = MATCH_ROUNDS[round], wrong = pairs.map(() => 0), done = pairs.map(() => false);
+    let sel = null, left = pairs.length; const L = [], R = [];
+    const card = h('section', { class: 'card enter' });
+    const score = h('span', { class: 'pts' }, 'Points: ' + fmtPts(total) + ' / ' + MAX);
+    card.append(topRow('🎮 Game 1: Tag Match · Round ' + (round + 1) + ' of ' + MATCH_ROUNDS.length), h('h2', { class: 'q' }, 'Match each tag with what it does'),
+      h('p', { class: 'muted' }, 'Tap a tag, then tap the matching description. Tapping the wrong one costs half a point.'), score);
+    const order = shuffle(pairs.map((_, i) => i));
+    const colL = h('div', { class: 'mcol' }), colR = h('div', { class: 'mcol' });
+    pairs.forEach((p, i) => { const b = h('button', { class: 'mcard tag', type: 'button', onclick: () => pick('L', i) }, p[0]); L[i] = b; colL.append(b); });
+    order.forEach(i => { const b = h('button', { class: 'mcard', type: 'button', onclick: () => pick('R', i) }, pairs[i][1]); R[i] = b; colR.append(b); });
+    card.append(h('div', { class: 'mgrid' }, colL, colR));
+    function pick(side, i) {
+      if (side === 'L' ? done[i] : done[i]) return;
+      SFX.click();
+      if (!sel || sel.side === side) { if (sel) (sel.side === 'L' ? L : R)[sel.i].classList.remove('sel'); sel = { side, i }; (side === 'L' ? L : R)[i].classList.add('sel'); return; }
+      const li = side === 'L' ? i : sel.i, ri = side === 'R' ? i : sel.i;
+      (sel.side === 'L' ? L : R)[sel.i].classList.remove('sel'); sel = null;
+      if (li === ri) {
+        done[li] = true; left--; total += wrong[li] === 0 ? 1 : 0.5; score.textContent = 'Points: ' + fmtPts(total) + ' / ' + MAX;
+        L[li].classList.add('matched'); R[li].classList.add('matched'); SFX.match();
+        if (left === 0) endRound();
+      } else {
+        wrong[li]++; wrong[ri]++; SFX.bad();
+        [L[li], R[ri]].forEach(b => { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); });
+      }
+    }
+    function endRound() {
+      pairs.forEach((p, i) => { if (wrong[i] > 0) mist.push({ topic: 'Tag meanings', text: 'Tag Match: confused ' + p[0] + ' (' + wrong[i] + ' wrong tries)' }); });
+      card.append(h('p', { class: 'fb good', style: 'font-weight:800' }, '🎉 All matched!'));
+      if (round < MATCH_ROUNDS.length - 1) card.append(h('div', { class: 'row end' }, h('button', { class: 'btn mint', type: 'button', onclick: () => { round++; startRound(); window.scrollTo(0, 0); } }, 'Next round ▶')));
+      else gameFinish(step, main, card, total, MAX, 'HTML Basics', mist, 'Tag Match');
+    }
+    main.append(card);
+  }
+  startRound();
+}
+
+// ---- GAME 2: HTML BUILDER ----
+const BUILD_TAGS = ['h1', 'p', 'ul', 'ol', 'li', 'img'];
+const BUILD_ROUNDS = [
+  { goal: 'A big heading and a paragraph.', hint: 'The big title is the main heading. The sentence under it is a paragraph.', lines: [
+    { slot: 1, expect: 'h1', text: 'My Pet' }, { slot: 1, expect: 'p', text: 'My pet is a cat.' }] },
+  { goal: 'A heading, a picture and a paragraph.', hint: 'Which tag shows a picture? It stands alone.', lines: [
+    { slot: 1, expect: 'h1', text: 'Cute Cat' }, { slot: 1, expect: 'img', attrs: ' src="cat.svg" alt="A cat"' }, { slot: 1, expect: 'p', text: 'Cats love to sleep.' }] },
+  { goal: 'A heading and a list with bullets.', hint: 'Bullets mean “unordered”. Every line inside the list is one list item.', lines: [
+    { slot: 1, expect: 'h1', text: 'Fruit Salad' }, { slot: 1, expect: 'ul', open: true }, { slot: 1, expect: 'li', text: 'Apple', depth: 1 }, { slot: 1, expect: 'li', text: 'Banana', depth: 1 }, { closeOf: 1 }] },
+  { goal: 'A heading, a numbered list and a paragraph.', hint: 'Numbers mean “ordered”. Which list tag is it?', lines: [
+    { slot: 1, expect: 'h1', text: 'Brush Your Teeth' }, { slot: 1, expect: 'ol', open: true }, { slot: 1, expect: 'li', text: 'Add paste', depth: 1 }, { slot: 1, expect: 'li', text: 'Brush', depth: 1 }, { slot: 1, expect: 'li', text: 'Rinse', depth: 1 }, { closeOf: 1 }, { slot: 1, expect: 'p', text: 'Smile!' }] }
+];
+const BUILD_PTS = 3;
+function buildHtml(R, tagOf) {
+  let out = '';
+  R.lines.forEach((l, i) => {
+    if (l.closeOf !== undefined) { const t = tagOf(l.closeOf); if (t) out += '</' + t + '>'; return; }
+    const t = tagOf(i); if (!t) return;
+    const attrs = (l.attrs || '').replace('cat.svg', placeholderSrc('cat'));
+    if (t === 'img') out += '<img' + attrs + '>';
+    else if (l.open) out += '<' + t + '>';
+    else out += '<' + t + '>' + esc(l.text || '') + '</' + t + '>';
+  });
+  return out;
+}
+function buildGameScreen(step) {
+  const main = clearMain(); let r = 0, total = 0; const mist = [];
+  const MAX = BUILD_ROUNDS.length * BUILD_PTS;
+  function round() {
+    main.innerHTML = '';
+    const R = BUILD_ROUNDS[r], placed = {}, marks = {}; let picked = null, attempts = 0, finished = false;
+    const slotIdx = R.lines.map((l, i) => l.slot ? i : -1).filter(i => i >= 0);
+    const card = h('section', { class: 'card enter' });
+    const score = h('span', { class: 'pts' }, 'Points: ' + fmtPts(total) + ' / ' + MAX);
+    const skeleton = h('div'), msg = h('div'), palette = h('div', { class: 'palette' });
+    const hint = hintWidget(R.hint);
+    const target = h('div', { class: 'paper', html: buildHtml(R, i => R.lines[i].expect) });
+    card.append(topRow('🎮 Game 2: HTML Builder · Round ' + (r + 1) + ' of ' + BUILD_ROUNDS.length), h('h2', { class: 'q' }, 'Build this page!'),
+      h('p', { class: 'muted' }, 'Goal: ' + R.goal + ' Drag a tag block into each empty box, or tap a block and then tap a box.'), score);
+    const blocks = BUILD_TAGS.map(t => {
+      const b = h('button', { class: 'tag-block', type: 'button', draggable: 'true', 'aria-label': 'Tag ' + t, onclick: () => { picked = picked === t ? null : t; SFX.click(); paintPalette(); } }, '<' + t + '>');
+      b.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', t); picked = t; paintPalette(); });
+      palette.append(b); return [t, b];
+    });
+    function paintPalette() { blocks.forEach(([t, b]) => b.classList.toggle('picked', picked === t)); }
+    function put(i, t) { if (finished) return; placed[i] = t; delete marks[i]; picked = null; SFX.click(); draw(); }
+    function draw() {
+      paintPalette(); skeleton.innerHTML = '';
+      R.lines.forEach((l, i) => {
+        const pad = 'margin-left:' + ((l.depth || 0) * 30) + 'px';
+        if (l.closeOf !== undefined) { const t = placed[l.closeOf]; skeleton.append(h('div', { class: 'line fixed' }, h('span', { style: pad, html: hl('</' + (t || '?') + '>') }))); return; }
+        const t = placed[i];
+        const slot = h('span', { class: 'slot' + (t ? ' filled' : '') + (marks[i] ? ' ' + marks[i] : ''), tabindex: '0', role: 'button', 'aria-label': t ? 'Box with ' + t + '. Press to remove.' : 'Empty box. Press to place the chosen tag.' },
+          t ? '<' + t + (l.attrs || '') + '>' : 'drop a tag here');
+        slot.addEventListener('click', () => { if (finished) return; if (picked) put(i, picked); else if (placed[i]) { delete placed[i]; delete marks[i]; draw(); } });
+        slot.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); slot.click(); } });
+        slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('over'); });
+        slot.addEventListener('dragleave', () => slot.classList.remove('over'));
+        slot.addEventListener('drop', e => { e.preventDefault(); const tg = e.dataTransfer.getData('text/plain'); if (BUILD_TAGS.includes(tg)) put(i, tg); });
+        const row = h('div', { class: 'line' }, h('span', { style: pad }, slot));
+        if (l.text !== undefined) row.append(h('span', { class: 'txt' }, l.text), h('span', { html: hl('</' + (t || '?') + '>') }));
+        skeleton.append(row);
+      });
+    }
+    const checkB = h('button', { class: 'btn', type: 'button', onclick: check }, '✔ Check my page');
+    function check() {
+      if (finished) return;
+      if (slotIdx.some(i => !placed[i])) { toast('Fill every box first 🙂'); return; }
+      attempts++; let good = 0;
+      slotIdx.forEach(i => { const ok = placed[i] === R.lines[i].expect; marks[i] = ok ? 'ok' : 'bad'; if (ok) good++; });
+      const frac = good / slotIdx.length; draw();
+      if (frac === 1) { finish(BUILD_PTS * [1, 0.75, 0.5][Math.min(attempts, 3) - 1], true); }
+      else {
+        SFX.bad();
+        msg.innerHTML = '';
+        msg.append(h('div', { class: 'fb bad' }, h('div', { class: 'fb-head' }, '🤔 Not quite!'), h('p', null, good + ' of ' + slotIdx.length + ' boxes are right. Tap a red box to take its tag away, then try again!'),
+          attempts >= 2 ? h('button', { class: 'btn small ghost', type: 'button', onclick: () => finish(BUILD_PTS * frac * 0.4, false) }, 'Finish this round anyway') : null));
+      }
+    }
+    function finish(pts, perfect) {
+      finished = true; total += pts; score.textContent = 'Points: ' + fmtPts(total) + ' / ' + MAX; checkB.disabled = true; if (hint) hint.lock();
+      if (!perfect) mist.push({ topic: 'Choosing the right tags', text: 'HTML Builder round ' + (r + 1) + ': not all tags were right' });
+      else if (attempts > 1) mist.push({ topic: 'Choosing the right tags', text: 'HTML Builder round ' + (r + 1) + ': needed ' + attempts + ' tries' });
+      msg.innerHTML = ''; perfect ? SFX.ok() : SFX.bad();
+      const mine = h('div', { class: 'paper', html: buildHtml(R, i => placed[i]) });
+      msg.append(h('div', { class: 'fb ' + (perfect ? 'good' : 'bad') }, h('div', { class: 'fb-head' }, perfect ? '🎉 Page built!' : '👍 Round finished'),
+        h('p', { class: 'pts' }, '+' + fmtPts(pts) + ' / ' + BUILD_PTS + ' points'), h('p', { style: 'margin:8px 0 4px;font-weight:800' }, 'This is the page you built:'), mine,
+        r < BUILD_ROUNDS.length - 1 ? h('div', { class: 'row end' }, h('button', { class: 'btn mint', type: 'button', onclick: () => { r++; round(); window.scrollTo(0, 0); } }, 'Next round ▶')) : null));
+      if (r === BUILD_ROUNDS.length - 1) gameFinish(step, main, msg, total, MAX, 'Text & Structure', mist, 'HTML Builder');
+    }
+    draw();
+    card.append(h('div', { class: 'build-grid' },
+      h('div', null, h('strong', null, '🎯 Target page'), target, h('p', { style: 'margin:16px 0 4px' }, h('strong', null, '🧱 Tag blocks')), palette, hint),
+      h('div', null, h('strong', null, '🧩 Your code'), h('div', { class: 'code-block', style: 'white-space:normal;font-size:18px' }, skeleton), h('div', { class: 'row', style: 'margin-top:10px' }, checkB))), msg);
+    main.append(card);
+  }
+  round();
+}
+
+// ---- GAME 3: CODE DETECTIVE ----
+const T_ = (t, b) => ({ t, b: b ? 1 : 0 });
+const DETECT = [
+  { hint: 'Compare the opening and closing tag of the heading.', why: 'The heading opens with `<h1>`, so it must close with `</h1>`.', lines: [[0, [T_('<h1>'), T_('My Website'), T_('</h2>', 1)]]] },
+  { hint: 'What does a closing tag always have?', why: 'The second `<p>` should be a closing tag with a slash: `</p>`.', lines: [[0, [T_('<p>'), T_('I like pizza.'), T_('<p>', 1)]]] },
+  { hint: 'Where does a link need to know to go?', why: 'A link needs an `href` attribute, like `<a href="...">`.', lines: [[0, [T_('<a>', 1), T_('Visit my school'), T_('</a>')]]] },
+  { hint: 'One of these lines has a picture with a missing attribute.', why: 'An `<img>` needs `src` to say which picture to show.', lines: [[0, [T_('<h1>'), T_('My Dog'), T_('</h1>')]], [0, [T_('<img alt="A brown dog">', 1)]]] },
+  { hint: 'Check that every list item is closed.', why: 'The Banana `<li>` never ends. Each item needs `</li>`.', lines: [[0, [T_('<ul>')]], [2, [T_('<li>'), T_('Apple'), T_('</li>')]], [2, [T_('<li>Banana', 1)]], [0, [T_('</ul>')]]] },
+  { hint: 'Close the tag you opened LAST first.', why: 'The tags are closed in the wrong order. It should be `</strong>` and then `</p>`.', lines: [[0, [T_('<div>')]], [2, [T_('<p>'), T_('Hello '), T_('<strong>'), T_('friend'), T_('</p>', 1), T_('</strong>', 1)]], [0, [T_('</div>')]]] }
+];
+function detectGameScreen(step) {
+  const main = clearMain(); let r = 0, total = 0; const mist = [];
+  const PER = 2, MAX = DETECT.length * PER;
+  function round() {
+    main.innerHTML = '';
+    const D = DETECT[r]; let wrongs = 0, over = false;
+    const card = h('section', { class: 'card enter' }), hint = hintWidget(D.hint), fb = h('div');
+    const score = h('span', { class: 'pts' }, 'Points: ' + fmtPts(total) + ' / ' + MAX);
+    const dots = h('div', { class: 'dots' }, DETECT.map((_, i) => h('i', { class: i < r ? 'on' : i === r ? 'cur' : '' })));
+    card.append(topRow('🎮 Game 3: Code Detective · Case ' + (r + 1) + ' of ' + DETECT.length), h('h2', { class: 'q' }, 'Click the mistake!'), dots,
+      h('p', { class: 'muted' }, 'There is one mistake in this code. Tap the part that is wrong.'), score);
+    const chunks = [], box = h('div', { class: 'code-block', style: 'white-space:pre-wrap' });
+    D.lines.forEach(([ind, cs]) => {
+      const line = h('div', { style: 'min-height:1.6em' }, ' '.repeat(ind));
+      cs.forEach(c => {
+        const span = h('span', { class: 'chunk', tabindex: '0', role: 'button', html: hl(c.t) });
+        const act = () => click(c, span); span.addEventListener('click', act);
+        span.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
+        chunks.push([c, span]); line.append(span);
+      });
+      box.append(line);
+    });
+    function click(c, span) {
+      if (over) return;
+      if (c.b) {
+        over = true; chunks.forEach(([cc, s]) => { if (cc.b) s.classList.add('found'); });
+        const pts = [PER, 1, 0.5, 0][Math.min(wrongs, 3)]; end(pts, true);
+      } else {
+        wrongs++; SFX.bad(); span.classList.remove('wrong'); void span.offsetWidth; span.classList.add('wrong');
+        if (wrongs >= 3) { over = true; chunks.forEach(([cc, s]) => { if (cc.b) s.classList.add('reveal'); }); end(0, false); }
+      }
+    }
+    function end(pts, found) {
+      total += pts; score.textContent = 'Points: ' + fmtPts(total) + ' / ' + MAX; if (hint) hint.lock();
+      if (wrongs > 0) mist.push({ topic: 'Spotting mistakes in tags', text: 'Code Detective case ' + (r + 1) + ': ' + wrongs + ' wrong tap(s)' });
+      found ? SFX.ok() : SFX.bad(); dots.children[r].className = 'on';
+      fb.append(h('div', { class: 'fb ' + (found ? 'good' : 'bad') }, h('div', { class: 'fb-head' }, found ? '🕵️ Found it!' : '🤔 Here it is'),
+        h('p', { html: fmt(D.why) }), h('p', { class: 'pts' }, '+' + fmtPts(pts) + ' / ' + PER + ' points'),
+        r < DETECT.length - 1 ? h('div', { class: 'row end' }, h('button', { class: 'btn mint', type: 'button', onclick: () => { r++; round(); window.scrollTo(0, 0); } }, 'Next case ▶')) : null));
+      if (r === DETECT.length - 1) gameFinish(step, main, fb, total, MAX, 'Debugging', mist, 'Code Detective');
+    }
+    card.append(box); if (hint) card.append(hint); card.append(fb); main.append(card);
+  }
+  round();
+}
+
+// =====================================================================
+// RESULTS
+// =====================================================================
+function finishAll() {
+  const sc = computeScores(), pct = Math.round(sc.total), level = levelFor(pct);
+  const strong = sc.skills.filter(s => s.pct >= 80).sort((a, b) => b.pct - a.pct).slice(0, 4);
+  let strengths = strong.map(s => STRENGTH_TEXT[s.name]);
+  if (!strengths.length) { const t = sc.skills.slice().sort((a, b) => b.pct - a.pct)[0]; strengths = t && t.pct >= 50 ? [STRENGTH_TEXT[t.name]] : ['You finished the whole adventure. That takes real effort!']; }
+  const weak = sc.skills.filter(s => s.pct < 70).sort((a, b) => a.pct - b.pct).slice(0, 4);
+  const practice = weak.length ? weak.map(s => PRACTICE_TEXT[s.name]) : ['Keep building bigger pages to stay sharp'];
+  const mistakes = []; STEPS.forEach(st => { const r = state.results[st.id]; if (r && r.mistakes) r.mistakes.forEach(m => mistakes.push(m)); });
+  const freq = {}; mistakes.forEach(m => { freq[m.topic] = (freq[m.topic] || 0) + 1; });
+  const topics = Object.keys(freq).sort((a, b) => freq[b] - freq[a]).slice(0, 8);
+  const hintsList = STEPS.filter(st => state.results[st.id] && state.results[st.id].hint).map(st => state.results[st.id].title);
+  const tasks = STEPS.filter(st => st.type === 'code' && state.results[st.id]).map(st => { const r = state.results[st.id]; return { id: st.id, sec: SECTION[st.sec].short, title: r.title, e: r.earned, m: r.max, items: r.items, code: r.code }; });
+  const f = { name: state.name, date: new Date().toISOString(), score: pct, pct, level, sections: sc.sections, skills: sc.skills, strengths, practice, topics, mistakes, hints: hintsList, tasks };
+  f.recommendation = makeRecommendation(f); f.report = buildReport(f);
+  state.final = f; state.phase = 'done'; state.screen = 'results'; state.finishedAt = f.date; save(); pushHistory(f); render();
+}
+function makeRecommendation(f) {
+  const n = f.name, sk = {}; f.skills.forEach(s => { sk[s.name] = s.pct; });
+  const sec = {}; f.sections.forEach(s => { sec[s.id] = s.pct; });
+  const best = f.skills.filter(s => s.pct >= 70).sort((a, b) => b.pct - a.pct).slice(0, 2).map(s => s.name.toLowerCase());
+  const weak = f.skills.filter(s => s.pct < 65).sort((a, b) => a.pct - b.pct).slice(0, 3).map(s => s.name.toLowerCase());
+  const open = f.pct >= 90 ? n + ' shows excellent HTML knowledge and can build working pages independently.'
+    : f.pct >= 75 ? n + ' demonstrates a solid understanding of basic HTML structure and common tags.'
+    : f.pct >= 60 ? n + ' understands many HTML basics and is making good progress.'
+    : f.pct >= 40 ? n + ' knows some HTML ideas but needs more practice to feel confident.'
+    : n + ' is at the start of the HTML journey and needs more guided practice.';
+  const parts = [open];
+  if (best.length) parts.push('Strongest areas: ' + best.join(' and ') + '.');
+  const theory = sec.s1, practical = (sec.s3 + sec.s6) / 2;
+  if (theory - practical >= 20) parts.push('Answers theory questions better than writing code, so more hands-on typing practice is recommended.');
+  else if (practical - theory >= 20) parts.push('Learns well by doing; a short revision of the vocabulary (tags, elements, attributes) would help.');
+  if (f.hints.length >= 5) parts.push('Used hints often (' + f.hints.length + ' times), which suggests building confidence with independent practice.');
+  if (weak.length) parts.push('Before moving on, practise: ' + weak.join(', ') + '.');
+  parts.push(f.pct >= 75 && weak.length <= 1 ? 'Ready to start CSS.'
+    : f.pct >= 60 ? 'Can begin CSS after a short revision of the topics above.'
+    : 'Should revise the HTML basics before starting CSS.');
+  return parts.join(' ');
+}
+function barRow(label, pct, color, text) {
+  const fill = h('div', { class: 'fill' }); fill.style.background = color;
+  requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = Math.round(pct) + '%'; }));
+  return h('div', { class: 'bar-row' }, h('span', { class: 'bar-label' }, label), h('div', { class: 'track' }, fill), h('span', { class: 'bar-val' }, text || Math.round(pct) + '%'));
+}
+function pctColor(p) { return p >= 80 ? 'var(--mint)' : p >= 60 ? 'var(--sky)' : p >= 40 ? 'var(--yellow)' : 'var(--coral)'; }
+function resultsScreen() {
+  const f = state.final; if (!f) { state.screen = 'welcome'; render(); return; }
+  const main = clearMain();
+  const ring = h('div', { class: 'ring' }), num = h('span', { class: 'big-score' }, '0');
+  ring.append(h('div', { class: 'ring-in' }, h('div', null, h('div', null, num, h('span', { class: 'muted', style: 'font-weight:800' }, ' / 100')), h('div', { style: 'font-size:26px;font-weight:900;color:var(--violet-d)' }, f.pct + '%'))));
+  const secBars = h('div', { class: 'bars' }, f.sections.map(s => barRow(s.short + ' (' + s.weight + '%)', s.pct, pctColor(s.pct))));
+  const skillBars = h('div', { class: 'bars' }, f.skills.map(s => barRow(s.name, s.pct, pctColor(s.pct))));
+  main.append(
+    h('section', { class: 'card enter', style: 'text-align:center' }, h('h1', { style: 'font-size:34px' }, 'Well done, ' + f.name + '! 🎉'), ring,
+      h('div', { style: 'margin:18px 0 8px' }, h('span', { class: 'badge' }, h('span', null, f.level.emoji), f.level.name)), h('p', { style: 'font-size:20px;max-width:620px;margin:10px auto 0' }, f.level.msg)),
+    h('section', { class: 'card enter' }, h('h2', null, '📊 How you did in each level'), secBars),
+    h('section', { class: 'card enter' }, h('h2', null, '🧩 Your skills'), skillBars),
+    h('div', { class: 'two' },
+      h('section', { class: 'card enter', style: 'margin:0' }, h('h2', null, '💪 Your strengths'), h('ul', { class: 'nice' }, f.strengths.map(s => h('li', { 'data-i': '⭐' }, s)))),
+      h('section', { class: 'card enter', style: 'margin:0' }, h('h2', null, '🎯 Practice these next'), h('ul', { class: 'nice' }, f.practice.map(s => h('li', { 'data-i': '🌱' }, s))))),
+    h('section', { class: 'card enter', style: 'margin-top:22px' }, h('h2', null, '👩‍🏫 Teacher recommendation'), h('div', { class: 'recommend' }, f.recommendation)),
+    h('div', { class: 'row', style: 'justify-content:center' },
+      h('button', { class: 'btn', type: 'button', onclick: () => { state.screen = 'teacher'; render(); } }, '👩‍🏫 Teacher Results'),
+      h('button', { class: 'btn ghost', type: 'button', onclick: startOver }, 'Start New Student')));
+  countUp(num, f.score, 1400);
+  const ringEl = $('.ring'); let k = 0; const t0 = performance.now();
+  (function anim(t) { k = Math.min(1, (t - t0) / 1400); ringEl.style.setProperty('--p', (f.pct * (1 - Math.pow(1 - k, 3))).toFixed(1)); if (k < 1) requestAnimationFrame(anim); })(t0);
+  SFX.win(); if (f.pct >= 75) setTimeout(confetti, 300);
+}
+function buildReport(f) {
+  const L = [];
+  L.push('HTML ASSESSMENT RESULT', 'Student: ' + f.name, 'Date: ' + new Date(f.date).toLocaleString(), 'Score: ' + f.score + '/100 (' + f.pct + '%)', 'Level: ' + f.level.name, '');
+  L.push('Sections (weight):'); f.sections.forEach(s => L.push('  ' + s.short + ' (' + s.weight + '%): ' + Math.round(s.pct) + '%  [' + fmtPts(s.e) + '/' + fmtPts(s.m) + ' pts]'));
+  L.push('', 'Skills:'); f.skills.forEach(s => L.push('  ' + s.name + ': ' + Math.round(s.pct) + '%'));
+  L.push('', 'Strengths:'); f.strengths.forEach(s => L.push('  - ' + s));
+  L.push('', 'Needs practice:'); f.practice.forEach(s => L.push('  - ' + s));
+  L.push('', 'Hints used: ' + f.hints.length + (f.hints.length ? ' (' + f.hints.join('; ') + ')' : ''));
+  L.push('', 'Coding tasks:'); f.tasks.forEach(t => { L.push('  ' + t.title + ': ' + fmtPts(t.e) + '/' + fmtPts(t.m)); (t.items || []).forEach(i => L.push('     ' + (i.got >= i.pts ? '[x] ' : i.got > 0 ? '[~] ' : '[ ] ') + i.label.replace(/`/g, ''))); });
+  L.push('', 'Mistakes (' + f.mistakes.length + '):'); f.mistakes.slice(0, 40).forEach(m => L.push('  - [' + m.sec + '] ' + m.text));
+  if (f.mistakes.length > 40) L.push('  ... and ' + (f.mistakes.length - 40) + ' more');
+  L.push('', 'Recommended topics for revision: ' + (f.topics.length ? f.topics.join(', ') : 'none'));
+  L.push('', 'Recommendation:', f.recommendation);
+  return L.join('\n');
+}
+function teacherScreen() {
+  const f = state.final; if (!f) { state.screen = 'welcome'; render(); return; }
+  const main = clearMain();
+  const tbl = (head, rows) => h('table', { class: 'tbl' }, h('thead', null, h('tr', null, head.map(x => h('th', null, x)))), h('tbody', null, rows.map(r => h('tr', null, r.map(c => h('td', null, c))))));
+  main.append(
+    h('section', { class: 'card enter' }, h('div', { class: 'row between' }, h('h2', { style: 'margin:0' }, '👩‍🏫 Teacher report'),
+      h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: () => copyText(f.report) }, '📋 Copy Results'), h('button', { class: 'btn ghost', type: 'button', onclick: () => { state.screen = 'results'; render(); } }, 'Back'))),
+      tbl(['Student', 'Date / time', 'Score', 'Percentage', 'Level'], [[f.name, new Date(f.date).toLocaleString(), f.score + ' / 100', f.pct + '%', f.level.name]])),
+    h('section', { class: 'card' }, h('h3', null, 'Section scores'), tbl(['Section', 'Weight', 'Points', 'Score'], f.sections.map(s => [s.name, s.weight + '%', fmtPts(s.e) + ' / ' + fmtPts(s.m), Math.round(s.pct) + '%']))),
+    h('section', { class: 'card' }, h('h3', null, 'Skill scores'), tbl(['Skill', 'Points', 'Score'], f.skills.map(s => [s.name, fmtPts(s.e) + ' / ' + fmtPts(s.m), Math.round(s.pct) + '%']))),
+    h('section', { class: 'card' }, h('h3', null, 'Coding task results'),
+      f.tasks.map(t => h('div', { style: 'margin-bottom:16px' }, h('strong', null, t.title + ' — ' + fmtPts(t.e) + ' / ' + fmtPts(t.m)),
+        (t.items || []).map(i => h('div', { class: 'crit ' + (i.got >= i.pts ? 'ok' : i.got > 0 ? 'part' : 'no') }, h('span', { class: 'ic' }, i.got >= i.pts ? '✅' : i.got > 0 ? '🟡' : '❌'), h('span', { html: fmt(i.label) }), h('span', { class: 'pp' }, fmtPts(i.got) + ' / ' + i.pts))),
+        h('details', { class: 'code-d' }, h('summary', null, 'Show the student’s code'), h('pre', null, t.code || ''))))),
+    h('section', { class: 'card' }, h('h3', null, 'Mistakes (' + f.mistakes.length + ')'),
+      f.mistakes.length ? h('ul', null, f.mistakes.map(m => h('li', null, h('strong', null, m.sec + ': '), m.text))) : h('p', null, 'No mistakes recorded. 🎉'),
+      h('h3', null, 'Hints used: ' + f.hints.length), f.hints.length ? h('p', null, f.hints.join(' · ')) : null,
+      h('h3', null, 'Recommended topics for revision'), h('p', null, f.topics.length ? f.topics.join(' · ') : 'None'),
+      h('h3', null, 'Recommendation'), h('div', { class: 'recommend' }, f.recommendation)));
+}
+
+// =====================================================================
+// START
+// =====================================================================
+function init() {
+  loadSaved();
+  $('#btn-sound').addEventListener('click', () => { state.sound = !state.sound; save(); updateHeader(false); SFX.click(); });
+  $('#btn-new').addEventListener('click', startOver);
+  render();
+}
+init();
+</script>
+</body>
+</html>
